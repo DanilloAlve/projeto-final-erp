@@ -109,18 +109,23 @@ O sistema pode ser estruturado em:
 projeto-final-erp/
 │
 ├── src/
-│   ├── node-api/
-│   ├── spring-service/
-│   └── python-service/
-│
-├── database/
-│   └── scripts.sql
-│
-├── docs/
-│   └── arquitetura.md
+│   ├── controllers/
+│   ├── database/
+│   ├── dto/
+│   ├── entities/
+│	├── erros/
+│	├── middliware/
+│	├── middliware/
+│	├── routes/
+│	├── services/
+│   └── types/
 │
 ├── .env
+├── .gitignore
+├── docker-compose.yml
 ├── package.json
+├── server.ts
+├── tsconfig.js
 └── README.md
 ```
 
@@ -149,10 +154,10 @@ JWT_REFRESH_SECRET="CHAVE SECRETA REFRESH"
 JWT_REFRESH_EXPIRATION="7d"
 PORT=3000
 NODE_ENV="production"
-DB_HOST=postgres-server
-DB_PORT=5432
-DB_USER=postgres
-DB_PASS=123
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASS=root
 DB_NAME=erp_db
 ```
 
