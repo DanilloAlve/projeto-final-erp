@@ -2,8 +2,11 @@ import 'reflect-metadata';
 import express from 'express';
 import 'dotenv/config';
 import { appDataSource } from './database/appDataSource.js';
+import routes from "./src/routes/index.js";
 const app = express();
 const PORT = process.env.PORT ?? 3000;
+
+app.use(routes);
 
 app.use(express.json());
 // Rota de teste para confirmar que o servidor está funcionando
