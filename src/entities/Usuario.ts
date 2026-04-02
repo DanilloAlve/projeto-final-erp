@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import { Perfil } from '../types/Perfil.js';
-import { Pedido } from "./Pedido";
+import { Pedido } from "./Pedido.js";
 
 @Entity('usuario')
 export class Usuario {
