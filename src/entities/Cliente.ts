@@ -1,21 +1,21 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
-import { Pedido } from "./Pedido";
+import { Pedido } from "./Pedido.js";
 
 @Entity("cliente")
 export class Cliente {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column()
+  @Column({ type: "varchar", nullable: false })
   nome!: string;
 
-  @Column({ unique: true })
+  @Column({ type: "varchar", nullable: false, unique: true })
   cpf_cnpj!: string;
 
-  @Column({ nullable: true })
+  @Column({ type: "varchar", nullable: true })
   email?: string;
 
-  @Column({ nullable: true })
+  @Column({ type: "varchar", nullable: true })
   telefone?: string;
 
   @OneToMany(() => Pedido, (pedido) => pedido.cliente)

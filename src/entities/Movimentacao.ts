@@ -5,8 +5,8 @@ import {
   ManyToOne,
   CreateDateColumn,
 } from "typeorm";
-import { Produto } from "./Produto";
-import { Usuario } from "./Usuario";
+import { Produto } from "./Produto.js";
+import { Usuario } from "./Usuario.js";
 
 @Entity("movimentacao_estoque")
 export class MovimentacaoEstoque {

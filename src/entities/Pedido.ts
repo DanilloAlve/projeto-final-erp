@@ -5,8 +5,8 @@ import {
   ManyToOne,
   OneToMany,
 } from "typeorm";
-import { Cliente } from "./Cliente";
-import { Usuario } from "./Usuario";
+import { Cliente } from "./Cliente.js";
+import { Usuario } from "./Usuario.js";
 import { ItemPedido } from "./ItemPedido.js";
 
 @Entity("pedido")
@@ -20,10 +20,10 @@ export class Pedido {
   @ManyToOne(() => Usuario, (usuario) => usuario.pedidos)
   usuario!: Usuario;
 
-  @Column("decimal", { precision: 10, scale: 2 })
+  @Column({ type: "decimal", precision: 10, scale: 2 })
   total!: number;
 
-  @Column()
+  @Column({ type: "varchar", nullable: false })
   status!: string; // aberto, pago, cancelado
 
   @OneToMany(() => ItemPedido, (item) => item.pedido, {

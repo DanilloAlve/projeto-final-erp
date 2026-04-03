@@ -6,17 +6,17 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Produto } from "./Produto";
+import { Produto } from "./Produto.js";
 
 @Entity("categoria")
 export class Categoria {
-  @PrimaryGeneratedColumn()
-  id!: number;
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
-  @Column({ unique: true })
+  @Column({ type: "varchar", nullable: false, unique: true })
   nome!: string;
 
-  @Column({ nullable: true })
+  @Column({ type: "varchar", nullable: true })
   descricao?: string;
 
   @OneToMany(() => Produto, (produto) => produto.categoria)

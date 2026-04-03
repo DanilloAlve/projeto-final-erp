@@ -4,8 +4,8 @@ import {
   Column,
   ManyToOne,
 } from "typeorm";
-import { Pedido } from "./Pedido";
-import { Produto } from "./Produto";
+import { Pedido } from "./Pedido.js";
+import { Produto } from "./Produto.js";
 
 @Entity("item_pedido")
 export class ItemPedido {
@@ -18,9 +18,9 @@ export class ItemPedido {
   @ManyToOne(() => Produto)
   produto!: Produto;
 
-  @Column()
+  @Column({ type: "int", nullable: false })
   quantidade!: number;
 
-  @Column("decimal", { precision: 10, scale: 2 })
+  @Column({ type: "decimal", precision: 10, scale: 2 })
   preco_unitario!: number;
 }
