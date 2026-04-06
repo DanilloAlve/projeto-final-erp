@@ -28,15 +28,27 @@ export default class CategoriaController {
     }
 
     async updateCategoria(req: Request, res: Response) {
+        const { id } = req.params;
+        if (!id || Array.isArray(id)) {
+            throw new AppError("Categoria id inválido", 400);
+        }
+
         const categoria = await this.categoriaService.updateCategoria(
-            Number(req.params.id),
+            id,
             req.body as UpdateCategoriaDTO
         );
+
         return res.status(200).json(categoria);
     }
 
     async deleteCategoria(req: Request, res: Response) {
-        await this.categoriaService.deleteCategoria(Number(req.params.id));
+        const id = req.params.id;
+        if (!id || Array.isArray(id)) {
+            throw new AppError("Categoria id inválido", 400);
+        }
+
+        await this.categoriaService.deleteCategoria(id);
+
         return res.status(204).send();
     }
 }

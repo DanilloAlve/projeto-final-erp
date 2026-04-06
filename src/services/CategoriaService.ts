@@ -50,8 +50,9 @@ export class CategoriaService {
         return await this.categoriaRepo.save(categoria);
     }
 
-    async updateCategoria(id: number, data: UpdateCategoriaDTO) {
+    async updateCategoria(id: string, data: UpdateCategoriaDTO) {
         const categoria = await this.getById(id);
+
         if (!categoria) {
             throw new AppError("Categoria nao encontrada!", 404);
         }
@@ -71,11 +72,14 @@ export class CategoriaService {
         return await this.categoriaRepo.save(categoria);
     }
 
-    async deleteCategoria(id: number) {
-        const result = await this.categoriaRepo.delete(id);
-        if (result.affected === 0) {
-            throw new AppError("Categoria nao encontrada!", 404);
+    async deleteCategoria(id: string) {
+        const categoria = await this.categoriaRepo.findOneBy({ id });
+
+        if (!categoria) {
+            throw new AppError("Categoria não encontrada", 404);
         }
+
+        await this.categoriaRepo.delete(id);
     }
 }
 
