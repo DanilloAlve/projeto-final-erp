@@ -12,7 +12,7 @@ import { Categoria } from "./Categoria.js";
 @Entity('produto')
 export class Produto {
   @PrimaryGeneratedColumn('uuid')
-  id_prod!: number;
+  id_prod!: string;
 
   @Column({ type: 'varchar', nullable: false })
   nome!: string;

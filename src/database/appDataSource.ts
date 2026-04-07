@@ -9,6 +9,8 @@ import { Pedido } from "../entities/Pedido.js";
 import { ItemPedido } from "../entities/ItemPedido.js";
 import { Cliente } from "../entities/Cliente.js";
 import { Sessao } from "../entities/Sessao.js";
+import { Financeiro } from "../entities/Financeiro.js";
+import { MovimentacaoEstoque } from "../entities/Movimentacao.js";
 
 export const appDataSource = new DataSource({
   type: "mysql",
@@ -21,5 +23,6 @@ export const appDataSource = new DataSource({
   synchronize: true,
   logging: true,
 
-  entities: [Usuario, Sessao, Produto, Categoria, Pedido, ItemPedido, Cliente],
+  entities: [Usuario, Sessao, Produto, Categoria, Pedido, ItemPedido, Cliente, Financeiro, MovimentacaoEstoque],
+  //entities: [Usuario, Sessao, Produto, Categoria, Pedido, ItemPedido, Cliente],
 });

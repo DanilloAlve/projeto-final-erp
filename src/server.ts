@@ -5,7 +5,11 @@ import { appDataSource } from "./database/appDataSource.js";
 import { produtoRoutes } from "./routes/produtoRoutes.js";
 import { categoriaRoutes } from "./routes/categoriaRoutes.js";
 import { usuarioRoutes } from "./routes/usuarioRoutes.js";
+import financeiroRoutes from "./routes/financeiroRoutes.js";
+import clienteRoutes from "./routes/clienteRoutes.js";
+import pedidoRoutes from "./routes/pedidoRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+
 
 
 const app = express();
@@ -20,12 +24,13 @@ app.get("/health", (_req, res) => {
 
 app.use(authRoutes);
 
+app.use("/auth", authRoutes);
 app.use("/produtos", produtoRoutes);
 app.use("/categorias", categoriaRoutes);
 app.use("/usuarios", usuarioRoutes);
-app.use("/login", authRoutes);
-app.use("/refresh", authRoutes);
-app.use("/logout", authRoutes);
+app.use("/financeiro", financeiroRoutes);
+app.use("/pedidos", pedidoRoutes);
+app.use("/clientes", clienteRoutes);
 
 appDataSource
     .initialize()
