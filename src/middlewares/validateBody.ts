@@ -1,15 +1,18 @@
-import type { RequestHandler } from "express";
-import type { ZodSchema } from "zod";
-import { AppError } from "../errors/AppErrors.js";
+import { Request, Response, NextFunction } from "express";
+import { ZodSchema } from "zod";
 
-export const validateBody = (schema: ZodSchema): RequestHandler => {
-    return (req, _res, next) => {
-        const result = schema.safeParse(req.body);
-        if (!result.success) {
-            return next(new AppError("Dados invalidos", 400, result.error.flatten()));
-        }
+export function validateBody(schema: ZodSchema<any>) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const result = schema.safeParse(req.body);
 
-        req.body = result.data;
-        return next();
-    };
-};
+    if (!result.success) {
+      return res.status(400).json({
+        message: "Dados inválidos",
+        errors: result.error.issues, // 👈 AQUI
+      });
+    }
+
+    req.body = result.data;
+    next();
+  };
+}

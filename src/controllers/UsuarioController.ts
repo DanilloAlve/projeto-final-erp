@@ -1,38 +1,66 @@
 import type { Request, Response } from "express";
 import type { UsuarioService } from "../services/UsuarioService.js";
-import type { CreateUserSchemaDTO, UpdateUserSchemaDTO } from "../dtos/CreateUserSchemaDTO.js";
+import type {
+  CreateUserSchemaDTO,
+  UpdateUserSchemaDTO,
+} from "../dtos/CreateUserSchemaDTO.js";
 import { AppError } from "../errors/AppErrors.js";
 
 export default class UsuarioController {
-    private userService: UsuarioService;
+  constructor(private userService: UsuarioService) {}
 
-    constructor(userService: UsuarioService) {
-        this.userService = userService;
+  async findAllUser(_req: Request, res: Response) {
+    const users = await this.userService.findAll();
+    return res.status(200).json(users);
+  }
+
+  async findUserById(req: Request, res: Response) {
+    const id = req.params.id as string;
+
+    if (!id || Array.isArray(id)) {
+      throw new AppError("ID inválido", 400);
     }
 
-    async findAllUser(_req: Request, res: Response) {
-        const users = await this.userService.findAll();
-        return res.status(200).json(users);
+    const user = await this.userService.getById(id);
+
+    if (!user) {
+      throw new AppError("Usuario nao encontrado!", 404);
     }
 
-    async findUserById(req: Request, res: Response) {
-        const user = await this.userService.getById(req.params.id as string);
-        if (!user) {
-            throw new AppError("Usuario nao encontrado!", 404);
-        }
-        return res.status(200).json(user);
+    return res.status(200).json(user);
+  }
+
+  async createUser(req: Request, res: Response) {
+    const data = req.body as CreateUserSchemaDTO;
+
+    const user = await this.userService.createUsuario(data);
+
+    return res.status(201).json(user);
+  }
+
+  async updateUser(req: Request, res: Response) {
+    const id = req.params.id as string;
+
+    if (!id || Array.isArray(id)) {
+      throw new AppError("ID inválido", 400);
     }
 
-    async createUser(req: Request, res: Response) {
-        const user = await this.userService.createUsuario(req.body as CreateUserSchemaDTO);
-        return res.status(201).json(user);
+    const data = req.body as UpdateUserSchemaDTO;
+
+    const user = await this.userService.updateUsuario(id, data);
+
+    return res.status(200).json(user);
+  }
+
+  async deleteUser(req: Request, res: Response) {
+    const id = req.params.id as string;
+
+    if (!id || Array.isArray(id)) {
+      throw new AppError("ID inválido", 400);
     }
 
-    async updateUser(req: Request, res: Response) {
-        const user = await this.userService.updateUsuario(
-            req.params.id as string,
-            req.body as UpdateUserSchemaDTO
-        );
-        return res.status(200).json(user);
-    }
+    await this.userService.deleteUsuario(id);
+
+    return res.status(204).send();
+  }
 }

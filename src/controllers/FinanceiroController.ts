@@ -1,54 +1,84 @@
 import { Request, Response } from "express";
 import { FinanceiroService } from "../services/FinanceiroService.js";
+import { AppError } from "../errors/AppErrors.js";
 
 export class FinanceiroController {
-private financeiroService = new FinanceiroService();
+  constructor(private service: FinanceiroService) {}
 
-async create(req: Request, res: Response): Promise<Response> {
-try {
-    const financeiro = await this.financeiroService.create(req.body);
-    return res.status(201).json(financeiro);
-} catch (error: any) {
-    return res.status(400).json({ message: error.message });
-}
-}
+  async create(req: Request, res: Response) {
+    try {
+      const financeiro = await this.service.create(req.body);
+      return res.status(201).json(financeiro);
+    } catch (error) {
+      return this.handleError(error, res);
+    }
+  }
 
-async findAll(req: Request, res: Response): Promise<Response> {
-try {
-    const registros = await this.financeiroService.findAll();
-    return res.status(200).json(registros);
-} catch (error: any) {
-    return res.status(500).json({ message: error.message });
-}
-}
+  async findAll(_req: Request, res: Response) {
+    const lista = await this.service.findAll();
+    return res.json(lista);
+  }
 
-async findById(req: Request, res: Response): Promise<Response> {
-try {
-    const id = Number(req.params.id);
-    const registro = await this.financeiroService.findById(id);
-    return res.status(200).json(registro);
-} catch (error: any) {
-    return res.status(404).json({ message: error.message });
-}
-}
+  async findById(req: Request, res: Response) {
+    try {
+      const id = this.getIdParam(req);
 
-async update(req: Request, res: Response): Promise<Response> {
-try {
-    const id = Number(req.params.id);
-    const registroAtualizado = await this.financeiroService.update(id, req.body);
-    return res.status(200).json(registroAtualizado);
-} catch (error: any) {
-    return res.status(400).json({ message: error.message });
-}
-}
+      const financeiro = await this.service.findById(id);
+      return res.json(financeiro);
+    } catch (error) {
+      return this.handleError(error, res);
+    }
+  }
 
-async delete(req: Request, res: Response): Promise<Response> {
-try {
-    const id = Number(req.params.id);
-    await this.financeiroService.delete(id);
-    return res.status(204).send();
-} catch (error: any) {
-    return res.status(404).json({ message: error.message });
-}
-}
+  async update(req: Request, res: Response) {
+    try {
+      const id = this.getIdParam(req);
+
+      const financeiro = await this.service.update(id, req.body);
+      return res.json(financeiro);
+    } catch (error) {
+      return this.handleError(error, res);
+    }
+  }
+
+  async pagar(req: Request, res: Response) {
+    try {
+      const id = this.getIdParam(req);
+
+      const financeiro = await this.service.pagar(id);
+      return res.json(financeiro);
+    } catch (error) {
+      return this.handleError(error, res);
+    }
+  }
+
+  async delete(req: Request, res: Response) {
+    try {
+      const id = this.getIdParam(req);
+
+      await this.service.delete(id);
+      return res.status(204).send();
+    } catch (error) {
+      return this.handleError(error, res);
+    }
+  }
+
+  private getIdParam(req: Request): string {
+    const id = req.params.id;
+
+    if (!id || Array.isArray(id)) {
+      throw new AppError("ID inválido", 400);
+    }
+
+    return id;
+  }
+
+  private handleError(error: unknown, res: Response) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+
+    console.error(error);
+    return res.status(500).json({ message: "Erro interno" });
+  }
 }

@@ -23,6 +23,6 @@ export const appDataSource = new DataSource({
   synchronize: true,
   logging: true,
 
-  entities: [Usuario, Sessao, Produto, Categoria, Pedido, ItemPedido, Cliente, Financeiro, MovimentacaoEstoque],
+  entities: [Usuario, Sessao, Produto, Categoria, Pedido, ItemPedido, Cliente, Financeiro],
   //entities: [Usuario, Sessao, Produto, Categoria, Pedido, ItemPedido, Cliente],
 });

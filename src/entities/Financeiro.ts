@@ -2,28 +2,51 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from "typeorm";
+
+export enum TipoFinanceiro {
+  RECEITA = "receita",
+  DESPESA = "despesa",
+}
+
+export enum StatusFinanceiro {
+  PENDENTE = "pendente",
+  PAGO = "pago",
+  CANCELADO = "cancelado",
+}
 
 @Entity("financeiro")
 export class Financeiro {
-  @PrimaryGeneratedColumn()
-  id!: number;
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
-  @Column()
-  tipo!: string; // pagar | receber
+  @Column({type: "enum", enum: TipoFinanceiro,})
+  tipo!: TipoFinanceiro;
 
-  @Column()
+  @Column({ type: "varchar", length: 255 })
   descricao!: string;
 
   @Column("decimal", { precision: 10, scale: 2 })
   valor!: number;
 
-  @Column()
-  status!: string; // pendente | pago
+  @Column({
+    type: "enum",
+    enum: StatusFinanceiro,
+    default: StatusFinanceiro.PENDENTE,
+  })
+  status!: StatusFinanceiro;
 
-  @Column()
+  @Column({ type: "date" })
   data_vencimento!: Date;
 
-  @Column({ nullable: true })
+  @Column({ type: "timestamp", nullable: true })
   data_pagamento?: Date;
+
+  @CreateDateColumn()
+  created_at!: Date;
+
+  @UpdateDateColumn()
+  updated_at!: Date;
 }
