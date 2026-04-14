@@ -5,13 +5,14 @@ import { loginSchema } from "../dtos/AuthDTO.js";
 import { UsuarioService } from "../services/UsuarioService.js";
 import { AppError } from "../errors/AppErrors.js";
 import type { SignOptions } from "jsonwebtoken";
+import { Subject } from "typeorm/persistence/Subject.js";
 
 export class AuthController {
   constructor(private usuarioService: UsuarioService) {}
 
   async login(req: Request, res: Response) {
     try {
-      // 🔐 validação com Zod
+      // validação com Zod
       const result = loginSchema.safeParse(req.body);
 
       if (!result.success) {
@@ -20,7 +21,7 @@ export class AuthController {
 
       const { email, senha } = result.data;
 
-      // 🔎 busca usuário
+      // busca usuário
       const usuario = await this.usuarioService.getByEmail(email);
 
       console.log(usuario);
@@ -29,7 +30,7 @@ export class AuthController {
         throw new AppError("Credenciais inválidas", 401);
       }
 
-      // 🔑 compara senha
+      // compara senha
       const senhaValida = await compare(senha, usuario.senha);
 
       if (!senhaValida) {
@@ -43,18 +44,24 @@ export class AuthController {
     const refreshExpires = process.env.JWT_REFRESH_EXPIRATION as string;      
 
     const accessToken = jwt.sign(
-        { id: usuario.id_user },
+        {
+            perfil: usuario.perfil
+         },
         process.env.JWT_ACCESS_SECRET as string,
         {
+            subject: usuario.id_user,
             expiresIn: process.env.JWT_ACCESS_EXPIRATION as SignOptions["expiresIn"],
         } as any
     );
     
     const refreshToken = jwt.sign(
-        { id: usuario.id_user },
+        {  
+            perfil: usuario.perfil
+         },
         process.env.JWT_REFRESH_SECRET as string,
         {
-            expiresIn: process.env.JWT_REFRESH_EXPIRATION as string,
+            subject: usuario.id_user,
+            expiresIn: process.env.JWT_REFRESH_EXPIRATION as SignOptions["expiresIn"],
         } as any
     );
 

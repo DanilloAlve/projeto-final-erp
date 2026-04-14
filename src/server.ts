@@ -9,6 +9,7 @@ import financeiroRoutes from "./routes/financeiroRoutes.js";
 import clienteRoutes from "./routes/clienteRoutes.js";
 import pedidoRoutes from "./routes/pedidoRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import movimentacaoRoutes from "./routes/movimentacaoRoutes.js";
 
 
 
@@ -31,6 +32,7 @@ app.use("/usuarios", usuarioRoutes);
 app.use("/financeiro", financeiroRoutes);
 app.use("/pedidos", pedidoRoutes);
 app.use("/clientes", clienteRoutes);
+app.use("/movimentacoes", movimentacaoRoutes);
 
 appDataSource
     .initialize()

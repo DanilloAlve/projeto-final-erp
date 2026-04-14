@@ -1,15 +1,18 @@
 import type { Request, Response } from "express";
 import type { UsuarioService } from "../services/UsuarioService.js";
-import type {
-  CreateUserSchemaDTO,
-  UpdateUserSchemaDTO,
-} from "../dtos/CreateUserSchemaDTO.js";
+import type { CreateUserSchemaDTO, UpdateUserSchemaDTO,} from "../dtos/CreateUserSchemaDTO.js";
 import { AppError } from "../errors/AppErrors.js";
+import { Perfil } from "../types/Perfil.js";
 
 export default class UsuarioController {
-  constructor(private userService: UsuarioService) {}
+  private userService: UsuarioService;
 
-  async findAllUser(_req: Request, res: Response) {
+   constructor(userService: UsuarioService) {
+        this.userService = userService;
+    }
+
+  async findAllUser(req: Request, res: Response) {
+
     const users = await this.userService.findAll();
     return res.status(200).json(users);
   }

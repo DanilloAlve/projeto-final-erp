@@ -1,6 +1,20 @@
 import type { RequestHandler } from "express";
 import jwt, { type JwtPayload } from "jsonwebtoken";
 import { AppError } from "../errors/AppErrors.js";
+import { Perfil } from "../types/Perfil.js";
+
+declare global {
+    namespace Express {
+        interface Request {
+            auth?: AuthPayload;
+        }
+    }
+}
+
+export interface AuthPayload extends JwtPayload {
+    sub: string; // ID do usuário
+    perfil: Perfil; // Perfil do usuário (ex: admin, user)
+}
 
 const getAccessSecret = () => {
     const value = process.env.JWT_ACCESS_SECRET;
@@ -29,4 +43,6 @@ export const ensureAuth: RequestHandler = (req, _res, next) => {
     } catch {
         return next(new AppError("Token invalido", 401));
     }
+
+    console.log("HEADER:", req.headers.authorization);
 };

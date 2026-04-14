@@ -8,7 +8,7 @@ export function validateBody(schema: ZodSchema<any>) {
     if (!result.success) {
       return res.status(400).json({
         message: "Dados inválidos",
-        errors: result.error.issues, // 👈 AQUI
+        errors: result.error.issues,
       });
     }
 

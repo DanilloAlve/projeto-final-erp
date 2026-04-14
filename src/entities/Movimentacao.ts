@@ -4,30 +4,52 @@ import {
   Column,
   ManyToOne,
   CreateDateColumn,
+  JoinColumn,
 } from "typeorm";
 import { Produto } from "./Produto.js";
 import { Usuario } from "./Usuario.js";
 
+export enum TipoMovimentacao {
+  ENTRADA = "entrada",
+  SAIDA = "saida",
+}
+
+export enum MotivoMovimentacao {
+  VENDA = "venda",
+  COMPRA = "compra",
+  AJUSTE = "ajuste",
+  DEVOLUCAO = "devolucao",
+}
+
 @Entity("movimentacao_estoque")
 export class MovimentacaoEstoque {
-  @PrimaryGeneratedColumn()
-  id!: number;
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
-  @ManyToOne(() => Produto)
+  @ManyToOne(() => Produto, { nullable: false })
+  @JoinColumn({ name: "produto_id" })
   produto!: Produto;
 
-  @Column()
-  tipo!: string; // entrada | saida
+  // Tipo (entrada ou saída)
+  @Column({type: "enum", enum: TipoMovimentacao, nullable: false })
+  tipo!: TipoMovimentacao;
 
-  @Column()
+  @Column({ type: "int" })
   quantidade!: number;
 
-  @Column()
-  motivo!: string; // venda, compra, ajuste
+  @Column({ type: "enum", enum: MotivoMovimentacao, nullable: false })
+  motivo!: MotivoMovimentacao; // venda, compra, ajuste
 
-  @ManyToOne(() => Usuario)
+  // Usuário responsável
+  @ManyToOne(() => Usuario, { nullable: false })
+  @JoinColumn({ name: "usuario_id" })
   usuario!: Usuario;
 
+  // Observação opcional
+  @Column({ type: "varchar", length: 255, nullable: true })
+  observacao?: string;
+
+  // Data automática
   @CreateDateColumn()
   created_at!: Date;
 }
