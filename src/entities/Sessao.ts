@@ -24,6 +24,8 @@ export class Sessao {
     @Column({ type: "text", nullable: true })
     user_agent?: string | null;
 
-    @Column({ type: "timestamp" })
+    // datetime evita erros de DEFAULT em TIMESTAMP(6) em algumas versões/configurações do MySQL.
+    // CreateDateColumn preenche o valor no INSERT; não dependemos de DEFAULT no servidor.
+    @CreateDateColumn({ type: "datetime" })
     created_at!: Date;
 }

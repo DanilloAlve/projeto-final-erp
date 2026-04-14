@@ -6,6 +6,9 @@ import { Usuario } from "../entities/Usuario.js";
 import { Sessao } from "../entities/Sessao.js";
 import { AppError } from "../errors/AppErrors.js";
 
+/** Dados do usuário seguros para resposta de API (sem senha). */
+export type UsuarioAuthPublico = Pick<Usuario, "id_user" | "nome" | "email" | "perfil">;
+
 export class AuthService {
     private userRepo: Repository<Usuario>;
     private sessionRepo: Repository<Sessao>;
@@ -35,6 +38,15 @@ export class AuthService {
         );
     }
 
+    private toUsuarioPublico(usuario: Usuario): UsuarioAuthPublico {
+        return {
+            id_user: usuario.id_user,
+            nome: usuario.nome,
+            email: usuario.email,
+            perfil: usuario.perfil,
+        };
+    }
+
     async login(email: string, senha: string, meta?: { ip?: string; userAgent?: string }) {
         const usuario = await this.userRepo.findOne({
             where: { email },            
@@ -50,7 +62,6 @@ export class AuthService {
             throw new AppError("Credenciais invalidas", 401);
         }
 
-        console.log(usuario)
         const senhaCorreta = await compare(senha, usuario.senha);
         if (!senhaCorreta) {
             throw new AppError("Credenciais invalidas", 401);
@@ -71,7 +82,7 @@ export class AuthService {
         await this.sessionRepo.save(sessao);
 
         const accessToken = this.gerarAccessToken(usuario);
-        return { accessToken, refreshToken, usuario };
+        return { accessToken, refreshToken, usuario: this.toUsuarioPublico(usuario) };
     }
 
     async refresh(refreshToken: string) {
@@ -104,7 +115,11 @@ export class AuthService {
         await this.sessionRepo.save(sessao);
 
         const accessToken = this.gerarAccessToken(sessao.usuario);
-        return { accessToken, refreshToken: novoRefreshToken, usuario: sessao.usuario };
+        return {
+            accessToken,
+            refreshToken: novoRefreshToken,
+            usuario: this.toUsuarioPublico(sessao.usuario),
+        };
     }
 
     async logout(refreshToken: string) {
