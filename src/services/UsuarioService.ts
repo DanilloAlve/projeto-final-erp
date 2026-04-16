@@ -1,7 +1,7 @@
 import type { DataSource, Repository } from "typeorm";
 import { Usuario } from "../entities/Usuario.js";
 import { hash } from "bcryptjs";
-import type { CreateUserSchemaDTO, UpdateUserSchemaDTO } from "../dtos/CreateUserSchemaDTO.js";
+import type { CreateUsuarioDTO, UpdateUsuarioDTO } from "../dtos/UsuarioDTO.js";
 import { AppError } from "../errors/AppErrors.js";
 
 export class UsuarioService {
@@ -31,18 +31,13 @@ export class UsuarioService {
         return await this.userRepo.findOneBy({nome: nome});        
     }
 
-    async createUsuario(userData: CreateUserSchemaDTO) {
+    async createUsuario(userData: CreateUsuarioDTO) {
         const usuario = await this.getByEmail(userData.email);
 
     if (usuario) {
         throw new AppError("Usuario ja cadastrado!", 409);
-    }   
-
-    const perfisValidos = ["0", "1", "2"];
-
-    if (!perfisValidos.includes(userData.perfil as unknown as string)) {
-        throw new AppError("Perfil inválido", 400);
     }
+
     const senha_hash = await hash(userData.password, 10);
 
     const novoUsuario = this.userRepo.create({
@@ -54,7 +49,7 @@ export class UsuarioService {
 
     return await this.userRepo.save(novoUsuario);
 }
-    async updateUsuario(id: string, userUpdate: UpdateUserSchemaDTO) {
+    async updateUsuario(id: string, userUpdate: UpdateUsuarioDTO) {
         const usuario = await this.getById(id);
 
         if (!usuario) {

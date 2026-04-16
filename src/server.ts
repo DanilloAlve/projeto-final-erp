@@ -8,6 +8,7 @@ import { usuarioRoutes } from "./routes/usuarioRoutes.js";
 import financeiroRoutes from "./routes/financeiroRoutes.js";
 import clienteRoutes from "./routes/clienteRoutes.js";
 import pedidoRoutes from "./routes/pedidoRoutes.js";
+import itemPedidoRoutes from "./routes/itemPedidoRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import movimentacaoRoutes from "./routes/movimentacaoRoutes.js";
 
@@ -31,6 +32,7 @@ app.use("/categorias", categoriaRoutes);
 app.use("/usuarios", usuarioRoutes);
 app.use("/financeiro", financeiroRoutes);
 app.use("/pedidos", pedidoRoutes);
+app.use("/itens-pedido", itemPedidoRoutes);
 app.use("/clientes", clienteRoutes);
 app.use("/movimentacoes", movimentacaoRoutes);
 
