@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import type { UsuarioService } from "../services/UsuarioService.js";
-import type { CreateUserSchemaDTO, UpdateUserSchemaDTO,} from "../dtos/CreateUserSchemaDTO.js";
+import type { CreateUsuarioDTO, UpdateUsuarioDTO } from "../dtos/UsuarioDTO.js";
 import { AppError } from "../errors/AppErrors.js";
 import { Perfil } from "../types/Perfil.js";
 
@@ -20,10 +20,6 @@ export default class UsuarioController {
   async findUserById(req: Request, res: Response) {
     const id = req.params.id as string;
 
-    if (!id || Array.isArray(id)) {
-      throw new AppError("ID inválido", 400);
-    }
-
     const user = await this.userService.getById(id);
 
     if (!user) {
@@ -34,7 +30,7 @@ export default class UsuarioController {
   }
 
   async createUser(req: Request, res: Response) {
-    const data = req.body as CreateUserSchemaDTO;
+    const data = req.body as CreateUsuarioDTO;
 
     const user = await this.userService.createUsuario(data);
 
@@ -44,11 +40,7 @@ export default class UsuarioController {
   async updateUser(req: Request, res: Response) {
     const id = req.params.id as string;
 
-    if (!id || Array.isArray(id)) {
-      throw new AppError("ID inválido", 400);
-    }
-
-    const data = req.body as UpdateUserSchemaDTO;
+    const data = req.body as UpdateUsuarioDTO;
 
     const user = await this.userService.updateUsuario(id, data);
 
@@ -64,6 +56,6 @@ export default class UsuarioController {
 
     await this.userService.deleteUsuario(id);
 
-    return res.status(204).send();
+    return res.status(200).json({ message: "Removido" });
   }
 }

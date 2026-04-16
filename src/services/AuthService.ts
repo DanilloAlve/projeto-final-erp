@@ -26,7 +26,7 @@ export class AuthService {
         return (jwt.sign as Function)(
             { sub: usuario.id_user, perfil: usuario.perfil },
             process.env.JWT_ACCESS_SECRET!,
-            { expiresIn: "15m" }
+            { expiresIn: "30m" }
         );
     }
 
