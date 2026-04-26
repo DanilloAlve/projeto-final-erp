@@ -19,10 +19,36 @@
   }
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .back-link {
   text-decoration: none;
   color: #0b3566;
   font-weight: 600;
+}
+
+.primary-btn {
+  border: 1px solid #08376a;
+  border-radius: 8px;
+  background: #08376a;
+  color: #fff;
+  font-weight: 600;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.secondary-btn {
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  background: #fff;
+  color: #344054;
+  font-weight: 600;
+  padding: 10px 14px;
+  cursor: pointer;
 }
 
 .stats-grid {
@@ -65,27 +91,34 @@
 .form-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+  gap: 12px;
 
-  .full {
+  .field {
+    display: grid;
+    gap: 6px;
+  }
+
+  .field-span-2 {
+    grid-column: span 2;
+  }
+
+  .field-span-4 {
     grid-column: 1 / -1;
   }
 
+  .field-label {
+    color: #344054;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
   input,
-  select,
-  button {
+  select {
+    width: 100%;
     border: 1px solid #d0d5dd;
     border-radius: 8px;
     padding: 10px 12px;
     font-size: 14px;
-  }
-
-  button {
-    grid-column: 1 / -1;
-    background: #08376a;
-    color: #fff;
-    font-weight: 600;
-    cursor: pointer;
   }
 }
 
@@ -121,4 +154,83 @@ table {
 .badge-off {
   background: #fee4e2;
   color: #b42318;
+}
+
+.row-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-btn {
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  background: #fff;
+  color: #344054;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.icon-btn.danger {
+  border-color: #fecdca;
+  color: #b42318;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 24, 40, 0.5);
+  display: grid;
+  place-items: center;
+  z-index: 20;
+  padding: 20px;
+}
+
+.modal-card {
+  width: min(960px, 96vw);
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #eaecf0;
+  box-shadow: 0 30px 60px rgba(16, 24, 40, 0.2);
+  padding: 16px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+
+  h2 {
+    margin: 0;
+    font-size: 18px;
+  }
+}
+
+.close-btn {
+  border: 0;
+  background: transparent;
+  color: #667085;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 2px;
+  color: #344054;
+  font-size: 14px;
+}
+
+.modal-footer {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
 }

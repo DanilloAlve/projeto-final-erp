@@ -15,10 +15,12 @@ type Categoria = {
 type Produto = {
   id_prod: string;
   nome: string;
+  descricao?: string | null;
   codigo: string;
   preco: number;
   estoque_atual: number;
   estoque_minimo: number;
+  estoque_maximo?: number | null;
   ativo: boolean;
   categoria?: Categoria;
 };
@@ -38,6 +40,8 @@ export class ProdutosComponent {
   protected readonly submitting = signal(false);
   protected readonly produtos = signal<Produto[]>([]);
   protected readonly categorias = signal<Categoria[]>([]);
+  protected readonly modalOpen = signal(false);
+  protected readonly editingProdutoId = signal<string | null>(null);
 
   protected readonly form = this.fb.nonNullable.group({
     nome: ['', [Validators.required]],
@@ -47,7 +51,8 @@ export class ProdutosComponent {
     estoque_atual: [0, [Validators.required, Validators.min(0)]],
     estoque_minimo: [0, [Validators.required, Validators.min(0)]],
     estoque_maximo: [0, [Validators.min(0)]],
-    categoriaId: ['']
+    categoriaId: [''],
+    ativo: [true]
   });
 
   constructor() {
@@ -67,6 +72,41 @@ export class ProdutosComponent {
     return this.produtos().filter((produto) => !produto.ativo).length;
   }
 
+  protected get isEditing(): boolean {
+    return this.editingProdutoId() !== null;
+  }
+
+  protected openCreateModal(): void {
+    this.editingProdutoId.set(null);
+    this.resetForm();
+    this.modalOpen.set(true);
+  }
+
+  protected openEditModal(produto: Produto): void {
+    this.editingProdutoId.set(produto.id_prod);
+    this.form.reset({
+      nome: produto.nome ?? '',
+      descricao: produto.descricao ?? '',
+      codigo: produto.codigo ?? '',
+      preco: Number(produto.preco) || 0,
+      estoque_atual: Number(produto.estoque_atual) || 0,
+      estoque_minimo: Number(produto.estoque_minimo) || 0,
+      estoque_maximo: Number(produto.estoque_maximo) || 0,
+      categoriaId: produto.categoria?.id ?? '',
+      ativo: !!produto.ativo
+    });
+    this.modalOpen.set(true);
+  }
+
+  protected closeModal(): void {
+    if (this.submitting()) {
+      return;
+    }
+    this.modalOpen.set(false);
+    this.editingProdutoId.set(null);
+    this.resetForm();
+  }
+
   protected submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -82,33 +122,76 @@ export class ProdutosComponent {
       estoque_atual: Number(raw.estoque_atual),
       estoque_minimo: Number(raw.estoque_minimo),
       estoque_maximo: raw.estoque_maximo > 0 ? Number(raw.estoque_maximo) : null,
-      categoriaId: raw.categoriaId || undefined
+      categoriaId: raw.categoriaId || undefined,
+      ativo: !!raw.ativo
     };
+    const editingId = this.editingProdutoId();
+    const request$ = editingId
+      ? this.http.put<Produto>(`${this.apiBaseUrl}/produtos/${editingId}`, payload)
+      : this.http.post<Produto>(`${this.apiBaseUrl}/produtos`, payload);
 
     this.submitting.set(true);
-    this.http
-      .post<Produto>(`${this.apiBaseUrl}/produtos`, payload)
+    request$
       .pipe(finalize(() => this.submitting.set(false)))
       .subscribe({
         next: () => {
-          this.form.reset({
-            nome: '',
-            descricao: '',
-            codigo: '',
-            preco: 0,
-            estoque_atual: 0,
-            estoque_minimo: 0,
-            estoque_maximo: 0,
-            categoriaId: ''
-          });
+          this.closeModal();
           this.loadProdutos();
-          void Swal.fire('Sucesso', 'Produto cadastrado com sucesso.', 'success');
+          void Swal.fire(
+            'Sucesso',
+            editingId ? 'Produto atualizado com sucesso.' : 'Produto cadastrado com sucesso.',
+            'success'
+          );
         },
         error: (error) => {
-          const parsed = parseApiError(error, 'Falha ao cadastrar produto.');
+          const parsed = parseApiError(
+            error,
+            editingId ? 'Falha ao atualizar produto.' : 'Falha ao cadastrar produto.'
+          );
           void Swal.fire('Erro', parsed.validationErrors[0] ?? parsed.message, 'error');
         }
       });
+  }
+
+  protected deleteProduto(produto: Produto): void {
+    void Swal.fire({
+      title: 'Excluir produto?',
+      text: `Deseja remover "${produto.nome}"?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Excluir',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#b42318'
+    }).then((result) => {
+      if (!result.isConfirmed) {
+        return;
+      }
+
+      this.http.delete<void>(`${this.apiBaseUrl}/produtos/${produto.id_prod}`).subscribe({
+        next: () => {
+          this.loadProdutos();
+          void Swal.fire('Excluido', 'Produto removido com sucesso.', 'success');
+        },
+        error: (error) => {
+          const parsed = parseApiError(error, 'Falha ao excluir produto.');
+          void Swal.fire('Erro', parsed.validationErrors[0] ?? parsed.message, 'error');
+        }
+      });
+    });
+  }
+
+  private resetForm(): void {
+    this.form.reset({
+      nome: '',
+      descricao: '',
+      codigo: '',
+      preco: 0,
+      estoque_atual: 0,
+      estoque_minimo: 0,
+      estoque_maximo: 0,
+      categoriaId: '',
+      ativo: true
+    });
   }
 
   private loadProdutos(): void {

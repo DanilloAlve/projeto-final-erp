@@ -2,37 +2,18 @@
   <header class="page-header">
     <div>
       <h1>Cadastro de Produtos</h1>
-      <p>Layout inspirado nas telas de produtos em docs.</p>
+      <p>Gerencie cadastro, edicao e exclusao de produtos.</p>
     </div>
-    <a routerLink="/dashboard" class="back-link">Voltar ao dashboard</a>
+    <div class="header-actions">
+      <button type="button" class="primary-btn" (click)="openCreateModal()">+ Adicionar produto</button>
+      <a routerLink="/dashboard" class="back-link">Voltar ao dashboard</a>
+    </div>
   </header>
 
   <section class="stats-grid">
     <article class="stat"><span>Total</span><strong>{{ totalProdutos }}</strong></article>
     <article class="stat"><span>Ativos</span><strong>{{ ativosCount }}</strong></article>
     <article class="stat"><span>Inativos</span><strong>{{ inativosCount }}</strong></article>
-  </section>
-
-  <section class="card">
-    <h2>Adicionar novo produto</h2>
-    <form [formGroup]="form" (ngSubmit)="submit()" class="form-grid">
-      <input type="text" formControlName="nome" placeholder="Nome do produto" />
-      <input type="text" formControlName="codigo" placeholder="Codigo do produto" />
-      <input type="number" step="0.01" formControlName="preco" placeholder="Preco de venda" />
-      <select formControlName="categoriaId">
-        <option value="">Sem categoria</option>
-        @for (categoria of categorias(); track categoria.id) {
-          <option [value]="categoria.id">{{ categoria.nome }}</option>
-        }
-      </select>
-      <input type="number" formControlName="estoque_atual" placeholder="Quantidade" />
-      <input type="number" formControlName="estoque_minimo" placeholder="Quantidade minima" />
-      <input type="number" formControlName="estoque_maximo" placeholder="Quantidade maxima" />
-      <input type="text" formControlName="descricao" placeholder="Descricao" class="full" />
-      <button type="submit" [disabled]="submitting()">
-        {{ submitting() ? 'Salvando...' : 'Cadastrar produto' }}
-      </button>
-    </form>
   </section>
 
   <section class="card">
@@ -49,6 +30,7 @@
             <th>Valor</th>
             <th>Estoque</th>
             <th>Status</th>
+            <th>Acao</th>
           </tr>
         </thead>
         <tbody>
@@ -64,14 +46,85 @@
                   {{ produto.ativo ? 'Ativo' : 'Inativo' }}
                 </span>
               </td>
+              <td>
+                <div class="row-actions">
+                  <button type="button" class="icon-btn" (click)="openEditModal(produto)">Editar</button>
+                  <button type="button" class="icon-btn danger" (click)="deleteProduto(produto)">Excluir</button>
+                </div>
+              </td>
             </tr>
           } @empty {
             <tr>
-              <td colspan="6">Nenhum produto cadastrado.</td>
+              <td colspan="7">Nenhum produto cadastrado.</td>
             </tr>
           }
         </tbody>
       </table>
     }
   </section>
+
+  @if (modalOpen()) {
+    <div class="modal-overlay">
+      <section class="modal-card" (click)="$event.stopPropagation()">
+        <header class="modal-header">
+          <h2>{{ isEditing ? 'Editar produto' : 'Adicionar novo produto' }}</h2>
+          <button type="button" class="close-btn" (click)="closeModal()">x</button>
+        </header>
+
+        <form [formGroup]="form" (ngSubmit)="submit()" class="form-grid">
+          <div class="field field-span-2">
+            <span class="field-label">Nome do produto *</span>
+            <input type="text" formControlName="nome" placeholder="Ex.: Notebook Dell Inspiron 15" />
+          </div>
+          <div class="field">
+            <span class="field-label">Categoria</span>
+            <select formControlName="categoriaId">
+              <option value="">Sem categoria</option>
+              @for (categoria of categorias(); track categoria.id) {
+                <option [value]="categoria.id">{{ categoria.nome }}</option>
+              }
+            </select>
+          </div>
+          <div class="field">
+            <span class="field-label">Status</span>
+            <label class="toggle">
+              <input type="checkbox" formControlName="ativo" />
+              <span>Ativo</span>
+            </label>
+          </div>
+          <div class="field">
+            <span class="field-label">Codigo do produto *</span>
+            <input type="text" formControlName="codigo" placeholder="Ex.: PRD-001" />
+          </div>
+          <div class="field">
+            <span class="field-label">Preco de venda *</span>
+            <input type="number" step="0.01" formControlName="preco" placeholder="0,00" />
+          </div>
+          <div class="field">
+            <span class="field-label">Quantidade</span>
+            <input type="number" formControlName="estoque_atual" placeholder="0" />
+          </div>
+          <div class="field">
+            <span class="field-label">Quantidade minima</span>
+            <input type="number" formControlName="estoque_minimo" placeholder="0" />
+          </div>
+          <div class="field">
+            <span class="field-label">Quantidade maxima</span>
+            <input type="number" formControlName="estoque_maximo" placeholder="0" />
+          </div>
+          <div class="field field-span-4">
+            <span class="field-label">Descricao</span>
+            <input type="text" formControlName="descricao" placeholder="Descreva detalhes sobre o produto" />
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="secondary-btn" (click)="closeModal()">Cancelar</button>
+            <button type="submit" class="primary-btn" [disabled]="submitting()">
+              {{ submitting() ? 'Salvando...' : (isEditing ? 'Salvar alteracoes' : 'Salvar produto') }}
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+  }
 </main>
