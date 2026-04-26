@@ -135,13 +135,18 @@ export class ProdutosComponent {
       .pipe(finalize(() => this.submitting.set(false)))
       .subscribe({
         next: () => {
-          this.closeModal();
-          this.loadProdutos();
-          void Swal.fire(
-            'Sucesso',
-            editingId ? 'Produto atualizado com sucesso.' : 'Produto cadastrado com sucesso.',
-            'success'
-          );
+          void Swal.fire({
+            title: 'Sucesso',
+            text: editingId ? 'Produto atualizado com sucesso.' : 'Produto cadastrado com sucesso.',
+            icon: 'success',
+            confirmButtonText: 'OK'
+          }).then((result) => {
+            if (!result.isConfirmed) {
+              return;
+            }
+            this.closeModal();
+            this.loadProdutos();
+          });
         },
         error: (error) => {
           const parsed = parseApiError(

@@ -2,21 +2,13 @@
   <header class="page-header">
     <div>
       <h1>Cadastro de Categorias</h1>
-      <p>Cadastre e visualize categorias de produtos.</p>
+      <p>Cadastre, edite e exclua categorias de produtos.</p>
     </div>
-    <a routerLink="/dashboard" class="back-link">Voltar ao dashboard</a>
+    <div class="header-actions">
+      <button type="button" class="primary-btn" (click)="openCreateModal()">+ Adicionar categoria</button>
+      <a routerLink="/dashboard" class="back-link">Voltar ao dashboard</a>
+    </div>
   </header>
-
-  <section class="card">
-    <h2>Nova categoria</h2>
-    <form [formGroup]="form" (ngSubmit)="submit()" class="form-grid">
-      <input type="text" formControlName="nome" placeholder="Nome da categoria" />
-      <input type="text" formControlName="descricao" placeholder="Descricao (opcional)" />
-      <button type="submit" [disabled]="submitting()">
-        {{ submitting() ? 'Salvando...' : 'Cadastrar categoria' }}
-      </button>
-    </form>
-  </section>
 
   <section class="card">
     <h2>Categorias cadastradas</h2>
@@ -28,6 +20,7 @@
           <tr>
             <th>Nome</th>
             <th>Descricao</th>
+            <th>Acao</th>
           </tr>
         </thead>
         <tbody>
@@ -35,14 +28,49 @@
             <tr>
               <td>{{ categoria.nome }}</td>
               <td>{{ categoria.descricao || '-' }}</td>
+              <td>
+                <div class="row-actions">
+                  <button type="button" class="icon-btn" (click)="openEditModal(categoria)">Editar</button>
+                  <button type="button" class="icon-btn danger" (click)="deleteCategoria(categoria)">Excluir</button>
+                </div>
+              </td>
             </tr>
           } @empty {
             <tr>
-              <td colspan="2">Nenhuma categoria cadastrada.</td>
+              <td colspan="3">Nenhuma categoria cadastrada.</td>
             </tr>
           }
         </tbody>
       </table>
     }
   </section>
+
+  @if (modalOpen()) {
+    <div class="modal-overlay">
+      <section class="modal-card">
+        <header class="modal-header">
+          <h2>{{ isEditing ? 'Editar categoria' : 'Adicionar categoria' }}</h2>
+          <button type="button" class="close-btn" (click)="closeModal()">x</button>
+        </header>
+
+        <form [formGroup]="form" (ngSubmit)="submit()" class="row g-3">
+          <div class="field col-12">
+            <span class="field-label">Nome da categoria *</span>
+            <input type="text" formControlName="nome" placeholder="Ex.: Informatica" />
+          </div>
+          <div class="field col-12">
+            <span class="field-label">Descricao</span>
+            <input type="text" formControlName="descricao" placeholder="Descricao (opcional)" />
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="secondary-btn" (click)="closeModal()">Cancelar</button>
+            <button type="submit" class="primary-btn" [disabled]="submitting()">
+              {{ submitting() ? 'Salvando...' : (isEditing ? 'Salvar alteracoes' : 'Salvar categoria') }}
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+  }
 </main>

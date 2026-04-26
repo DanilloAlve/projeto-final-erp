@@ -1,0 +1,173 @@
+@mixin crud-page-base {
+  display: grid;
+  gap: 16px;
+}
+
+@mixin page-header-base {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h1 {
+    margin: 0;
+    font-size: 24px;
+  }
+
+  p {
+    margin: 4px 0 0;
+    color: #667085;
+  }
+}
+
+@mixin header-actions-base {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+@mixin back-link-base {
+  text-decoration: none;
+  color: #0b3566;
+  font-weight: 600;
+}
+
+@mixin primary-btn-base {
+  border: 1px solid #08376a;
+  border-radius: 8px;
+  background: #08376a;
+  color: #fff;
+  font-weight: 600;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+@mixin secondary-btn-base {
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  background: #fff;
+  color: #344054;
+  font-weight: 600;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+@mixin card-base($title-size: 18px) {
+  background: #fff;
+  border: 1px solid #e4e7ec;
+  border-radius: 12px;
+  padding: 16px;
+
+  h2 {
+    margin: 0 0 12px;
+    font-size: $title-size;
+  }
+}
+
+@mixin form-grid-base($columns) {
+  display: grid;
+  grid-template-columns: $columns;
+  gap: 12px;
+
+  .field {
+    display: grid;
+    gap: 6px;
+  }
+
+  .field-label {
+    color: #344054;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    border: 1px solid #d0d5dd;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+}
+
+@mixin table-base {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    text-align: left;
+    border-bottom: 1px solid #eaecf0;
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+
+  th {
+    color: #667085;
+    font-size: 12px;
+    text-transform: uppercase;
+  }
+}
+
+@mixin row-actions-base {
+  display: flex;
+  gap: 8px;
+}
+
+@mixin icon-btn-base {
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  background: #fff;
+  color: #344054;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+@mixin modal-overlay-base {
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 24, 40, 0.5);
+  display: grid;
+  place-items: center;
+  z-index: 20;
+  padding: 20px;
+}
+
+@mixin modal-card-base($max-width) {
+  width: min($max-width, 96vw);
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #eaecf0;
+  box-shadow: 0 30px 60px rgba(16, 24, 40, 0.2);
+  padding: 16px;
+}
+
+@mixin modal-header-base {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+
+  h2 {
+    margin: 0;
+    font-size: 18px;
+  }
+}
+
+@mixin close-btn-base {
+  border: 0;
+  background: transparent;
+  color: #667085;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@mixin modal-footer-base {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}

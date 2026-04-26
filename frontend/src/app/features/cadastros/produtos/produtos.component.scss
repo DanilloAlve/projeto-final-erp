@@ -1,54 +1,27 @@
+@use '../shared/crud-shared' as shared;
+
 .crud-page {
-  display: grid;
-  gap: 16px;
+  @include shared.crud-page-base;
 }
 
 .page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  h1 {
-    margin: 0;
-    font-size: 24px;
-  }
-
-  p {
-    margin: 4px 0 0;
-    color: #667085;
-  }
+  @include shared.page-header-base;
 }
 
 .header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  @include shared.header-actions-base;
 }
 
 .back-link {
-  text-decoration: none;
-  color: #0b3566;
-  font-weight: 600;
+  @include shared.back-link-base;
 }
 
 .primary-btn {
-  border: 1px solid #08376a;
-  border-radius: 8px;
-  background: #08376a;
-  color: #fff;
-  font-weight: 600;
-  padding: 10px 14px;
-  cursor: pointer;
+  @include shared.primary-btn-base;
 }
 
 .secondary-btn {
-  border: 1px solid #d0d5dd;
-  border-radius: 8px;
-  background: #fff;
-  color: #344054;
-  font-weight: 600;
-  padding: 10px 14px;
-  cursor: pointer;
+  @include shared.secondary-btn-base;
 }
 
 .stats-grid {
@@ -77,68 +50,31 @@
 }
 
 .card {
-  background: #fff;
-  border: 1px solid #e4e7ec;
-  border-radius: 12px;
-  padding: 16px;
-
-  h2 {
-    margin: 0 0 12px;
-    font-size: 18px;
-  }
+  @include shared.card-base(18px);
 }
 
-.form-grid {
+.field {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
+  gap: 6px;
+}
 
-  .field {
-    display: grid;
-    gap: 6px;
-  }
+.field-label {
+  color: #344054;
+  font-size: 12px;
+  font-weight: 600;
+}
 
-  .field-span-2 {
-    grid-column: span 2;
-  }
-
-  .field-span-4 {
-    grid-column: 1 / -1;
-  }
-
-  .field-label {
-    color: #344054;
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  input,
-  select {
-    width: 100%;
-    border: 1px solid #d0d5dd;
-    border-radius: 8px;
-    padding: 10px 12px;
-    font-size: 14px;
-  }
+.field input,
+.field select {
+  width: 100%;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
 }
 
 table {
-  width: 100%;
-  border-collapse: collapse;
-
-  th,
-  td {
-    text-align: left;
-    border-bottom: 1px solid #eaecf0;
-    padding: 10px 8px;
-    font-size: 13px;
-  }
-
-  th {
-    color: #667085;
-    font-size: 12px;
-    text-transform: uppercase;
-  }
+  @include shared.table-base;
 }
 
 .badge {
@@ -157,19 +93,11 @@ table {
 }
 
 .row-actions {
-  display: flex;
-  gap: 8px;
+  @include shared.row-actions-base;
 }
 
 .icon-btn {
-  border: 1px solid #d0d5dd;
-  border-radius: 8px;
-  background: #fff;
-  color: #344054;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 6px 10px;
-  cursor: pointer;
+  @include shared.icon-btn-base;
 }
 
 .icon-btn.danger {
@@ -178,43 +106,19 @@ table {
 }
 
 .modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(16, 24, 40, 0.5);
-  display: grid;
-  place-items: center;
-  z-index: 20;
-  padding: 20px;
+  @include shared.modal-overlay-base;
 }
 
 .modal-card {
-  width: min(960px, 96vw);
-  background: #fff;
-  border-radius: 12px;
-  border: 1px solid #eaecf0;
-  box-shadow: 0 30px 60px rgba(16, 24, 40, 0.2);
-  padding: 16px;
+  @include shared.modal-card-base(960px);
 }
 
 .modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-
-  h2 {
-    margin: 0;
-    font-size: 18px;
-  }
+  @include shared.modal-header-base;
 }
 
 .close-btn {
-  border: 0;
-  background: transparent;
-  color: #667085;
-  font-size: 18px;
-  font-weight: 700;
-  cursor: pointer;
+  @include shared.close-btn-base;
 }
 
 .toggle {
@@ -228,9 +132,6 @@ table {
 }
 
 .modal-footer {
-  grid-column: 1 / -1;
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+  @include shared.modal-footer-base;
   margin-top: 4px;
 }
