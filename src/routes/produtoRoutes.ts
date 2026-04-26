@@ -10,6 +10,7 @@ const produtoService = new ProdutoService(appDataSource);
 const produtoController = new ProdutoController(produtoService);
 
 router.get("/", ensureAuth, (req, res) => produtoController.findAllProduto(req, res));
+router.get("/resumo", ensureAuth, (req, res) => produtoController.getResumoEstatisticas(req, res));
 router.get("/:id", ensureAuth, (req, res) => produtoController.findProdutoById(req, res));
 router.post("/", ensureAuth, (req, res) => produtoController.createProduto(req, res));
 router.put("/:id", ensureAuth, (req, res) => produtoController.updateProduto(req, res));

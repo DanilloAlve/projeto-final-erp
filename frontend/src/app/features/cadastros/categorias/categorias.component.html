@@ -30,8 +30,17 @@
               <td>{{ categoria.descricao || '-' }}</td>
               <td>
                 <div class="row-actions">
-                  <button type="button" class="icon-btn" (click)="openEditModal(categoria)">Editar</button>
-                  <button type="button" class="icon-btn danger" (click)="deleteCategoria(categoria)">Excluir</button>
+                  <button type="button" class="icon-btn edit-btn" (click)="openEditModal(categoria)" aria-label="Editar categoria">
+                    <img src="/icons/editar.svg" alt="Editar" />
+                  </button>
+                  <button
+                    type="button"
+                    class="icon-btn danger delete-btn"
+                    (click)="deleteCategoria(categoria)"
+                    aria-label="Excluir categoria"
+                  >
+                    <img src="/icons/excluir.svg" alt="Excluir" />
+                  </button>
                 </div>
               </td>
             </tr>

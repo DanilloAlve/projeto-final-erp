@@ -17,6 +17,13 @@ export type CreateProdutoDTO = {
 
 export type UpdateProdutoDTO = Partial<CreateProdutoDTO>;
 
+export type ProdutoResumoEstatisticas = {
+    total: number;
+    ativos: number;
+    inativos: number;
+    foraEstoque: number;
+};
+
 export class ProdutoService {
     private produtoRepo: Repository<Produto>;
     private categoriaRepo: Repository<Categoria>;
@@ -51,6 +58,20 @@ export class ProdutoService {
         return await this.produtoRepo.find({
             relations: { categoria: true },
         });
+    }
+
+    async getResumoEstatisticas(): Promise<ProdutoResumoEstatisticas> {
+        const foraEstoqueQb = this.produtoRepo
+            .createQueryBuilder("p")
+            .where("p.estoque_atual < p.estoque_minimo");
+
+        const [total, ativos, inativos, foraEstoque] = await Promise.all([
+            this.produtoRepo.count(),
+            this.produtoRepo.count({ where: { ativo: true } }),
+            this.produtoRepo.count({ where: { ativo: false } }),
+            foraEstoqueQb.getCount(),
+        ]);
+        return { total, ativos, inativos, foraEstoque };
     }
 
     async getByCodigo(codigo: string) {

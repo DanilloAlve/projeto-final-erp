@@ -10,10 +10,23 @@
     </div>
   </header>
 
-  <section class="stats-grid">
-    <article class="stat"><span>Total</span><strong>{{ totalProdutos }}</strong></article>
-    <article class="stat"><span>Ativos</span><strong>{{ ativosCount }}</strong></article>
-    <article class="stat"><span>Inativos</span><strong>{{ inativosCount }}</strong></article>
+  <section class="stats-grid" aria-label="Resumo de produtos">
+    <article class="stat">
+      <span>Total de Produtos</span>
+      <strong>{{ resumo().total }}</strong>
+    </article>
+    <article class="stat">
+      <span>Produtos Ativos</span>
+      <strong>{{ resumo().ativos }}</strong>
+    </article>
+    <article class="stat">
+      <span>Produtos Inativos</span>
+      <strong>{{ resumo().inativos }}</strong>
+    </article>
+    <article class="stat stat--alert">
+      <span>Fora de Estoque</span>
+      <strong>{{ resumo().foraEstoque }}</strong>
+    </article>
   </section>
 
   <section class="card">
@@ -48,8 +61,17 @@
               </td>
               <td>
                 <div class="row-actions">
-                  <button type="button" class="icon-btn" (click)="openEditModal(produto)">Editar</button>
-                  <button type="button" class="icon-btn danger" (click)="deleteProduto(produto)">Excluir</button>
+                  <button type="button" class="icon-btn edit-btn" (click)="openEditModal(produto)" aria-label="Editar produto">
+                    <img src="/icons/editar.svg" alt="Editar" />
+                  </button>
+                  <button
+                    type="button"
+                    class="icon-btn danger delete-btn"
+                    (click)="deleteProduto(produto)"
+                    aria-label="Excluir produto"
+                  >
+                    <img src="/icons/excluir.svg" alt="Excluir" />
+                  </button>
                 </div>
               </td>
             </tr>

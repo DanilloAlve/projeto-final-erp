@@ -1,67 +1,38 @@
+@use '../shared/crud-shared' as shared;
+
 .crud-page {
-  display: grid;
-  gap: 16px;
+  @include shared.crud-page-base;
 }
 
 .page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  @include shared.page-header-base;
   gap: 12px;
-
-  h1 {
-    margin: 0;
-    font-size: 24px;
-  }
-
-  p {
-    margin: 4px 0 0;
-    color: #667085;
-  }
 }
 
 .header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  @include shared.header-actions-base;
 }
 
 .primary-btn,
 .secondary-btn {
-  border: none;
-  border-radius: 8px;
-  padding: 10px 14px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
+  border: 0;
 }
 
 .primary-btn {
-  background: #08376a;
-  color: #fff;
+  @include shared.primary-btn-base;
 }
 
 .secondary-btn {
+  @include shared.secondary-btn-base;
   background: #f2f4f7;
-  color: #344054;
 }
 
 .back-link {
-  text-decoration: none;
-  color: #0b3566;
-  font-weight: 600;
+  @include shared.back-link-base;
 }
 
 .card {
-  background: #fff;
-  border: 1px solid #e4e7ec;
-  border-radius: 12px;
-  padding: 16px;
-
-  h2 {
-    margin: 0 0 12px;
-    font-size: 17px;
-  }
+  @include shared.card-base(17px);
 }
 
 .form-grid {
@@ -71,22 +42,7 @@
 }
 
 table {
-  width: 100%;
-  border-collapse: collapse;
-
-  th,
-  td {
-    text-align: left;
-    border-bottom: 1px solid #eaecf0;
-    padding: 10px 8px;
-    font-size: 13px;
-  }
-
-  th {
-    color: #667085;
-    font-size: 12px;
-    text-transform: uppercase;
-  }
+  @include shared.table-base;
 }
 
 .badge {
@@ -115,48 +71,23 @@ table {
 }
 
 .modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.45);
-  display: grid;
-  place-items: center;
-  padding: 16px;
-  z-index: 30;
+  @include shared.modal-overlay-base;
 }
 
 .modal-card {
-  width: min(720px, 100%);
-  background: #fff;
-  border-radius: 14px;
-  border: 1px solid #e4e7ec;
-  box-shadow: 0 20px 40px rgba(16, 24, 40, 0.18);
-  padding: 16px;
+  @include shared.modal-card-base(720px);
 }
 
 .modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-
-  h2 {
-    margin: 0;
-    font-size: 18px;
-  }
+  @include shared.modal-header-base;
 }
 
 .close-btn {
-  border: none;
-  background: transparent;
-  font-size: 18px;
-  cursor: pointer;
+  @include shared.close-btn-base;
 }
 
 .modal-footer {
-  grid-column: 1 / -1;
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
+  @include shared.modal-footer-base;
   margin-top: 8px;
 }
 

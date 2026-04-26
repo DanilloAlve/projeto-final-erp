@@ -59,9 +59,16 @@ table {
   @include shared.icon-btn-base;
 }
 
+.icon-btn.edit-btn {
+  @include shared.icon-svg-btn-base(22px, 17px);
+}
+
 .icon-btn.danger {
-  border-color: #fecdca;
   color: #b42318;
+}
+
+.icon-btn.delete-btn {
+  @include shared.icon-svg-btn-base(17px, 19px, 4px, 8px);
 }
 
 .modal-overlay {

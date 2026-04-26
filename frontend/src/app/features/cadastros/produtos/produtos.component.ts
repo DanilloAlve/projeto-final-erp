@@ -25,6 +25,13 @@ type Produto = {
   categoria?: Categoria;
 };
 
+type ProdutoResumo = {
+  total: number;
+  ativos: number;
+  inativos: number;
+  foraEstoque: number;
+};
+
 @Component({
   selector: 'app-produtos',
   imports: [ReactiveFormsModule, RouterLink],
@@ -39,6 +46,7 @@ export class ProdutosComponent {
   protected readonly loading = signal(false);
   protected readonly submitting = signal(false);
   protected readonly produtos = signal<Produto[]>([]);
+  protected readonly resumo = signal<ProdutoResumo>({ total: 0, ativos: 0, inativos: 0, foraEstoque: 0 });
   protected readonly categorias = signal<Categoria[]>([]);
   protected readonly modalOpen = signal(false);
   protected readonly editingProdutoId = signal<string | null>(null);
@@ -58,18 +66,7 @@ export class ProdutosComponent {
   constructor() {
     this.loadCategorias();
     this.loadProdutos();
-  }
-
-  protected get totalProdutos(): number {
-    return this.produtos().length;
-  }
-
-  protected get ativosCount(): number {
-    return this.produtos().filter((produto) => produto.ativo).length;
-  }
-
-  protected get inativosCount(): number {
-    return this.produtos().filter((produto) => !produto.ativo).length;
+    this.loadResumoEstatisticas();
   }
 
   protected get isEditing(): boolean {
@@ -146,6 +143,7 @@ export class ProdutosComponent {
             }
             this.closeModal();
             this.loadProdutos();
+            this.loadResumoEstatisticas();
           });
         },
         error: (error) => {
@@ -175,6 +173,7 @@ export class ProdutosComponent {
       this.http.delete<void>(`${this.apiBaseUrl}/produtos/${produto.id_prod}`).subscribe({
         next: () => {
           this.loadProdutos();
+          this.loadResumoEstatisticas();
           void Swal.fire('Excluido', 'Produto removido com sucesso.', 'success');
         },
         error: (error) => {
@@ -217,6 +216,13 @@ export class ProdutosComponent {
     this.http.get<Categoria[]>(`${this.apiBaseUrl}/categorias`).subscribe({
       next: (data) => this.categorias.set(data),
       error: () => this.categorias.set([])
+    });
+  }
+
+  private loadResumoEstatisticas(): void {
+    this.http.get<ProdutoResumo>(`${this.apiBaseUrl}/produtos/resumo`).subscribe({
+      next: (data) => this.resumo.set(data),
+      error: () => this.resumo.set({ total: 0, ativos: 0, inativos: 0, foraEstoque: 0 })
     });
   }
 }

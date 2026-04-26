@@ -115,7 +115,7 @@
 }
 
 @mixin icon-btn-base {
-  border: 1px solid #d0d5dd;
+  border: 0;
   border-radius: 8px;
   background: #fff;
   color: #344054;
@@ -123,6 +123,19 @@
   font-weight: 600;
   padding: 6px 10px;
   cursor: pointer;
+}
+
+@mixin icon-svg-btn-base($width, $height, $padding-y: 5px, $padding-x: 8px) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: $padding-y $padding-x;
+
+  img {
+    display: block;
+    width: $width;
+    height: $height;
+  }
 }
 
 @mixin modal-overlay-base {

@@ -26,7 +26,7 @@
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 12px;
 }
 
@@ -46,6 +46,19 @@
     display: block;
     margin-top: 4px;
     font-size: 26px;
+  }
+
+  &--alert {
+    border-color: #fecdca;
+    background: #fff6f5;
+
+    span {
+      color: #b42318;
+    }
+
+    strong {
+      color: #b42318;
+    }
   }
 }
 
@@ -100,9 +113,16 @@ table {
   @include shared.icon-btn-base;
 }
 
+.icon-btn.edit-btn {
+  @include shared.icon-svg-btn-base(22px, 17px);
+}
+
 .icon-btn.danger {
-  border-color: #fecdca;
   color: #b42318;
+}
+
+.icon-btn.delete-btn {
+  @include shared.icon-svg-btn-base(17px, 19px, 4px, 8px);
 }
 
 .modal-overlay {

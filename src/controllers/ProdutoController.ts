@@ -14,6 +14,11 @@ export default class ProdutoController {
         return res.status(200).json(produtos);
     }
 
+    async getResumoEstatisticas(_req: Request, res: Response) {
+        const resumo = await this.produtoService.getResumoEstatisticas();
+        return res.status(200).json(resumo);
+    }
+
     async findProdutoById(req: Request, res: Response) {
         const produto = await this.produtoService.getById(req.params.id as string);
         if (!produto) {
