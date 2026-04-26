@@ -18,6 +18,11 @@ export const permissions = {
         [Perfil.SOLICITANTE]: ["read"],
         [Perfil.COMPRADOR]: ["read"],
     },
+    cliente: {
+        [Perfil.GESTOR]: ["create", "read", "update", "delete"],
+        [Perfil.SOLICITANTE]: ["read"],
+        [Perfil.COMPRADOR]: ["read"],
+    },
     movimentacao: {
         [Perfil.GESTOR]: ["create", "read", "update", "delete"],
         [Perfil.SOLICITANTE]: ["create", "read"],
