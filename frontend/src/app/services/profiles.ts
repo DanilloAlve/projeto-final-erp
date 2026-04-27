@@ -8,6 +8,15 @@ export const PERFIS = [
 
 export type Perfil = (typeof PERFIS)[number];
 
+/** Enum string alinhado a `PERFIS` — preferir em comparações de perfil (menu, permissões). */
+export enum PerfilEnum {
+  ADMINISTRADOR_SISTEMA = 'ADMINISTRADOR_SISTEMA',
+  GERENTE_SUPERVISOR = 'GERENTE_SUPERVISOR',
+  OPERADOR_ESTOQUE = 'OPERADOR_ESTOQUE',
+  FINANCEIRO_CONTADOR = 'FINANCEIRO_CONTADOR',
+  APENAS_VISUALIZACAO = 'APENAS_VISUALIZACAO',
+}
+
 /** Perfil usado quando a API não envia valor reconhecido ou em formulários iniciais. */
 export const PERFIL_PADRAO: Perfil = 'APENAS_VISUALIZACAO';
 

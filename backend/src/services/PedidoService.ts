@@ -7,6 +7,13 @@ import { ItemPedido } from "../entities/ItemPedido.js";
 import { Produto } from "../entities/Produto.js";
 import { AppError } from "../errors/AppErrors.js";
 
+/** Relações carregadas nas respostas de pedido (itens com produto para exibição). */
+const pedidoDetailRelations = {
+  cliente: true,
+  usuario: true,
+  itens: { produto: true },
+} as const;
+
 export class PedidoService {
   private dataSource: DataSource;
   private pedidoRepo: Repository<Pedido>;
@@ -106,7 +113,7 @@ export class PedidoService {
 
       const result = await pedidoRepo.findOne({
         where: { id: saved.id },
-        relations: ["cliente", "usuario", "itens"],
+        relations: pedidoDetailRelations,
       });
       if (!result) throw new AppError("Pedido não encontrado após criação", 500);
       return result;
@@ -115,14 +122,14 @@ export class PedidoService {
 
   async findAll() {
     return await this.pedidoRepo.find({
-      relations: ["cliente", "usuario", "itens"],
+      relations: pedidoDetailRelations,
     });
   }
 
   async findById(id: string) {
     const pedido = await this.pedidoRepo.findOne({
       where: { id },
-      relations: ["cliente", "usuario", "itens"],
+      relations: pedidoDetailRelations,
     });
 
     if (!pedido) throw new AppError("Pedido não encontrado", 404);
@@ -148,7 +155,7 @@ export class PedidoService {
       if (anterior === status) {
         const unchanged = await pedidoRepo.findOne({
           where: { id },
-          relations: ["cliente", "usuario", "itens"],
+          relations: pedidoDetailRelations,
         });
         if (!unchanged) throw new AppError("Pedido não encontrado", 404);
         return unchanged;
@@ -169,7 +176,7 @@ export class PedidoService {
 
       const atualizado = await pedidoRepo.findOne({
         where: { id },
-        relations: ["cliente", "usuario", "itens"],
+        relations: pedidoDetailRelations,
       });
       if (!atualizado) throw new AppError("Pedido não encontrado", 404);
       return atualizado;

@@ -1,9 +1,171 @@
 <app-page-layout currentPage="pedidos">
-    <div class="page-header">
-      <h1>Pedidos</h1>
-    </div>
+  <div class="page-header pedidos-header">
+    <h1>Gerenciamento de Pedidos</h1>
+    <button class="btn-novo" (click)="abrirModalNovo()">+ Novo Pedido</button>
+  </div>
 
-    <div class="page-card">
-      <p>Em desenvolvimento.</p>
+  <div *ngIf="loading()" class="loading-message">
+    Carregando pedidos...
+  </div>
+  <div *ngIf="!loading() && errorMessage()" class="error-message">
+    {{ errorMessage() }}
+  </div>
+
+  <div class="pedidos-filtros">
+    <select class="select-filtro" [ngModel]="filtroStatus()" (ngModelChange)="onFiltroStatusChange($event)">
+      <option value="todos">Todos os status</option>
+      <option value="aberto">Aberto</option>
+      <option value="pago">Pago</option>
+      <option value="cancelado">Cancelado</option>
+    </select>
+  </div>
+
+  <table class="pedidos-table">
+    <thead>
+      <tr>
+        <th>Cliente</th>
+        <th>Total</th>
+        <th>Status</th>
+        <th>Itens</th>
+        <th>Data</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngIf="!loading() && !errorMessage()">
+        <tr *ngIf="pedidosFiltrados.length === 0">
+          <td colspan="6" class="pedidos-vazio">{{ mensagemListaVazia() }}</td>
+        </tr>
+        <tr *ngFor="let pedido of pedidosFiltrados">
+          <td><strong>{{ pedido.clienteNome }}</strong></td>
+          <td>{{ pedido.total | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="classeStatus(pedido.status)">{{ labelStatus(pedido.status) }}</span>
+          </td>
+          <td>{{ pedido.itens.length }}</td>
+          <td>{{ pedido.created_at ? (pedido.created_at | date: 'dd/MM/yyyy HH:mm') : '-' }}</td>
+          <td class="acoes">
+            <button type="button" (click)="abrirModalDetalhe(pedido)" class="btn-acao editar" title="Detalhes">✎</button>
+            <button type="button" (click)="excluirPedido(pedido)" class="btn-acao deletar" [disabled]="excluindo()" title="Excluir">🗑</button>
+          </td>
+        </tr>
+      </ng-container>
+    </tbody>
+  </table>
+
+  <div *ngIf="mostraModalNovo()" class="modal" (click)="fecharModalNovo()">
+    <div class="modal-content modal-wide" (click)="$event.stopPropagation()">
+      <h2>Novo Pedido</h2>
+
+      <div class="row g-3">
+        <div class="form-group col-12 col-md-8">
+          <label>Cliente</label>
+          <select class="form-select" [ngModel]="formularioNovo().clienteId" (ngModelChange)="onClienteNovoChange($event)">
+            <option value="">Selecione o cliente</option>
+            <option *ngFor="let c of clientes" [value]="c.id">{{ c.nome }}</option>
+          </select>
+        </div>
+      </div>
+
+      <h3 class="itens-titulo">Itens</h3>
+      <div class="itens-toolbar">
+        <button type="button" class="btn btn-secondary btn-sm" (click)="adicionarLinha()">+ Linha</button>
+      </div>
+
+      <div class="linhas-scroll">
+        <table class="itens-table-mini">
+          <thead>
+            <tr>
+              <th>Produto</th>
+              <th class="col-qtd">Qtd.</th>
+              <th class="col-preco">Preço unit.</th>
+              <th class="col-acao"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let linha of formularioNovo().linhas; let i = index">
+              <td>
+                <select class="form-select" [ngModel]="linha.produtoId" (ngModelChange)="onProdutoLinhaChange(i, $event)">
+                  <option value="">Selecione</option>
+                  <option *ngFor="let pr of produtos" [value]="pr.id">{{ pr.nome }}</option>
+                </select>
+              </td>
+              <td class="col-qtd">
+                <input class="form-control" type="number" min="1" step="1" [ngModel]="linha.quantidade" (ngModelChange)="onQuantidadeLinhaChange(i, $event)" />
+              </td>
+              <td class="col-preco">
+                <app-currency-input [ngModel]="linha.preco_unitario" (ngModelChange)="onPrecoLinhaChange(i, $event)"></app-currency-input>
+              </td>
+              <td class="col-acao">
+                <button type="button" class="btn-remover-linha" (click)="removerLinha(i)" [disabled]="formularioNovo().linhas.length <= 1" title="Remover linha">✕</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-primary" type="button" (click)="salvarNovoPedido()" [disabled]="salvando()">Salvar pedido</button>
+        <button class="btn btn-secondary" type="button" (click)="fecharModalNovo()">Cancelar</button>
+      </div>
     </div>
+  </div>
+
+  <div *ngIf="mostraModalDetalhe()" class="modal" (click)="fecharModalDetalhe()">
+    <div *ngIf="pedidoDetalhe() as pd" class="modal-content modal-wide" (click)="$event.stopPropagation()">
+      <h2>Pedido</h2>
+
+      <div class="detalhe-grid">
+        <div><span class="detalhe-label">Cliente</span><span class="detalhe-valor">{{ pd.clienteNome }}</span></div>
+        <div><span class="detalhe-label">Responsável</span><span class="detalhe-valor">{{ pd.usuarioNome }}</span></div>
+        <div><span class="detalhe-label">Total</span><span class="detalhe-valor">{{ pd.total | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span></div>
+        <div><span class="detalhe-label">Data</span><span class="detalhe-valor">{{ pd.created_at ? (pd.created_at | date: 'dd/MM/yyyy HH:mm') : '-' }}</span></div>
+      </div>
+
+      <div class="form-group col-12 col-md-6" *ngIf="podeAlterarStatus(pd.status)">
+        <label>Status</label>
+        <select class="form-select" [ngModel]="statusEdicao()" (ngModelChange)="onStatusEdicaoChange($event)">
+          <option value="aberto">Aberto</option>
+          <option value="pago">Pago</option>
+          <option value="cancelado">Cancelado</option>
+        </select>
+      </div>
+
+      <p *ngIf="!podeAlterarStatus(pd.status)" class="hint-cancelado">Pedido cancelado — o status não pode ser alterado.</p>
+
+      <h3 class="itens-titulo">Itens</h3>
+      <table class="pedidos-table itens-readonly">
+        <thead>
+          <tr>
+            <th>Produto</th>
+            <th>Qtd.</th>
+            <th>Preço unit.</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let it of pd.itens">
+            <td>{{ it.produtoNome }}</td>
+            <td>{{ it.quantidade }}</td>
+            <td>{{ it.preco_unitario | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+            <td>{{ (it.quantidade * it.preco_unitario) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="modal-actions">
+        <button
+          *ngIf="podeAlterarStatus(pd.status)"
+          class="btn btn-primary"
+          type="button"
+          (click)="salvarStatusPedido()"
+          [disabled]="atualizandoStatus()"
+        >
+          Salvar status
+        </button>
+        <button class="btn btn-secondary" type="button" (click)="fecharModalDetalhe()">Fechar</button>
+        <button class="btn-excluir-pedido" type="button" (click)="excluirPedido(pd)" [disabled]="excluindo()">Excluir pedido</button>
+      </div>
+    </div>
+  </div>
 </app-page-layout>

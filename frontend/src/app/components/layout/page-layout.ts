@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
+import { PerfilEnum, type Perfil } from '../../services/profiles';
 
 type PageKey = 'dashboard' | 'produtos' | 'categorias' | 'financeiro' | 'movimentacoes' | 'clientes' | 'pedidos' | 'usuarios';
 
@@ -27,8 +28,15 @@ export class PageLayoutComponent {
     }
   }
 
-  private perfilAtual() {
+  private perfilAtual(): Perfil | null {
     return this.currentUser()?.funcao ?? null;
+  }
+
+  /** Retorna true se o usuário tiver um dos perfis informados. */
+  private perfilEhUmDe(...perfis: PerfilEnum[]): boolean {
+    const p = this.perfilAtual();
+    if (p === null) return false;
+    return perfis.some((candidato) => candidato === p);
   }
 
   isPaginaAtiva(page: PageKey) {
@@ -36,43 +44,57 @@ export class PageLayoutComponent {
   }
 
   podeVerProdutos() {
-    const p = this.perfilAtual();
-    return p === 'ADMINISTRADOR_SISTEMA' || p === 'GERENTE_SUPERVISOR' || p === 'OPERADOR_ESTOQUE';
+    return this.perfilEhUmDe(
+      PerfilEnum.ADMINISTRADOR_SISTEMA,
+      PerfilEnum.GERENTE_SUPERVISOR,
+      PerfilEnum.OPERADOR_ESTOQUE
+    );
   }
 
   podeVerCategorias() {
-    const p = this.perfilAtual();
-    return p === 'ADMINISTRADOR_SISTEMA' || p === 'GERENTE_SUPERVISOR' || p === 'OPERADOR_ESTOQUE';
+    return this.perfilEhUmDe(
+      PerfilEnum.ADMINISTRADOR_SISTEMA,
+      PerfilEnum.GERENTE_SUPERVISOR,
+      PerfilEnum.OPERADOR_ESTOQUE
+    );
   }
 
   podeVerFinanceiro() {
-    const p = this.perfilAtual();
-    return p === 'ADMINISTRADOR_SISTEMA' || p === 'GERENTE_SUPERVISOR' || p === 'FINANCEIRO_CONTADOR';
+    return this.perfilEhUmDe(
+      PerfilEnum.ADMINISTRADOR_SISTEMA,
+      PerfilEnum.GERENTE_SUPERVISOR,
+      PerfilEnum.FINANCEIRO_CONTADOR
+    );
   }
 
   podeVerMovimentacoes() {
-    const p = this.perfilAtual();
-    return (
-      p === 'ADMINISTRADOR_SISTEMA' ||
-      p === 'GERENTE_SUPERVISOR' ||
-      p === 'OPERADOR_ESTOQUE' ||
-      p === 'FINANCEIRO_CONTADOR'
+    return this.perfilEhUmDe(
+      PerfilEnum.ADMINISTRADOR_SISTEMA,
+      PerfilEnum.GERENTE_SUPERVISOR,
+      PerfilEnum.OPERADOR_ESTOQUE,
+      PerfilEnum.FINANCEIRO_CONTADOR
     );
   }
 
   podeVerClientes() {
-    const p = this.perfilAtual();
-    return p === 'ADMINISTRADOR_SISTEMA' || p === 'GERENTE_SUPERVISOR' || p === 'FINANCEIRO_CONTADOR';
+    return this.perfilEhUmDe(
+      PerfilEnum.ADMINISTRADOR_SISTEMA,
+      PerfilEnum.GERENTE_SUPERVISOR,
+      PerfilEnum.FINANCEIRO_CONTADOR
+    );
   }
 
   podeVerPedidos() {
-    const p = this.perfilAtual();
-    return p === 'ADMINISTRADOR_SISTEMA' || p === 'GERENTE_SUPERVISOR' || p === 'FINANCEIRO_CONTADOR';
+    return this.perfilEhUmDe(
+      PerfilEnum.ADMINISTRADOR_SISTEMA,
+      PerfilEnum.GERENTE_SUPERVISOR,
+      PerfilEnum.FINANCEIRO_CONTADOR,
+      PerfilEnum.OPERADOR_ESTOQUE
+    );
   }
 
   podeVerUsuarios() {
-    const p = this.perfilAtual();
-    return p === 'ADMINISTRADOR_SISTEMA';
+    return this.perfilEhUmDe(PerfilEnum.ADMINISTRADOR_SISTEMA);
   }
 
   irParaDashboard() {

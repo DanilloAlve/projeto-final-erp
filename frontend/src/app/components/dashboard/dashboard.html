@@ -4,39 +4,87 @@
       <p class="user-function">{{ currentUser()?.funcao }}</p>
     </div>
 
+    @if (errorMessage()) {
+      <p class="dashboard-error" role="alert">{{ errorMessage() }}</p>
+    }
+
     <div class="dashboard-grid">
       <div class="card">
         <div class="card-header">
           <h3>Total de Vendas</h3>
         </div>
-        <div class="card-value">R$ 45.230,00</div>
-        <p class="card-subtitle">Este mês</p>
+        @if (loading()) {
+          <div class="card-value card-value--muted">…</div>
+        } @else {
+          <div class="card-value">{{ resumo()?.vendasMesAtual ?? 0 | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</div>
+        }
+        <p class="card-subtitle">Pedidos pagos neste mês</p>
       </div>
 
       <div class="card">
         <div class="card-header">
           <h3>Produtos</h3>
         </div>
-        <div class="card-value">128</div>
-        <p class="card-subtitle">Em estoque</p>
+        @if (loading()) {
+          <div class="card-value card-value--muted">…</div>
+        } @else {
+          <div class="card-value">{{ resumo()?.produtosAtivos ?? 0 }}</div>
+        }
+        <p class="card-subtitle">Ativos no catálogo</p>
       </div>
 
       <div class="card">
         <div class="card-header">
           <h3>Clientes</h3>
         </div>
-        <div class="card-value">45</div>
-        <p class="card-subtitle">Ativos</p>
+        @if (loading()) {
+          <div class="card-value card-value--muted">…</div>
+        } @else {
+          <div class="card-value">{{ resumo()?.totalClientes ?? 0 }}</div>
+        }
+        <p class="card-subtitle">Cadastrados</p>
       </div>
 
       <div class="card">
         <div class="card-header">
           <h3>Crescimento</h3>
         </div>
-        <div class="card-value">15%</div>
-        <p class="card-subtitle">Último período</p>
+        @if (loading()) {
+          <div class="card-value card-value--muted">…</div>
+        } @else {
+          <div class="card-value">{{ formatCrescimento(resumo()?.crescimentoPercentual) }}</div>
+        }
+        <p class="card-subtitle">Vendas vs. mês anterior</p>
       </div>
     </div>
+
+    <section class="dashboard-charts" aria-label="Gráficos">
+      <div class="chart-card chart-card--vendas">
+        <h3 class="chart-title">Vendas</h3>
+        <p class="chart-hint">Pedidos pagos nos últimos 6 meses</p>
+        @if (loading()) {
+          <div class="chart-skeleton" aria-hidden="true"></div>
+        } @else {
+          <div class="chart-wrap">
+            <canvas #vendasChart role="img" aria-label="Gráfico de barras de vendas por mês"></canvas>
+          </div>
+        }
+      </div>
+
+      <div class="chart-card chart-card--produtos">
+        <h3 class="chart-title">Produtos por categoria</h3>
+        <p class="chart-hint">Produtos ativos no catálogo</p>
+        @if (loading()) {
+          <div class="chart-skeleton chart-skeleton--donut" aria-hidden="true"></div>
+        } @else if ((graficos()?.produtosPorCategoria?.length ?? 0) === 0) {
+          <p class="chart-empty">Nenhum produto ativo vinculado a categorias.</p>
+        } @else {
+          <div class="chart-wrap chart-wrap--donut">
+            <canvas #produtosChart role="img" aria-label="Gráfico de rosca de produtos por categoria"></canvas>
+          </div>
+        }
+      </div>
+    </section>
 
     <div class="recent-section">
       <h2>Atividades Recentes</h2>

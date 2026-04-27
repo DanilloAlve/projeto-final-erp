@@ -55,7 +55,7 @@ export const routes: Routes = [
     path: 'pedidos',
     component: Pedidos,
     canActivate: [AuthGuard, RoleGuard],
-    data: { perfis: ['ADMINISTRADOR_SISTEMA', 'GERENTE_SUPERVISOR', 'FINANCEIRO_CONTADOR'] },
+    data: { perfis: ['ADMINISTRADOR_SISTEMA', 'GERENTE_SUPERVISOR', 'FINANCEIRO_CONTADOR', 'OPERADOR_ESTOQUE'] },
   },
   {
     path: 'usuarios',
