@@ -60,10 +60,22 @@ export class AuthService {
 
     const userJson = localStorage.getItem(USER_STORAGE_KEY);
     const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
-    if (userJson && accessToken) {
-      const stored = JSON.parse(userJson) as User;
-      this.currentUser.set(stored);
-      this.isLoggedIn.set(true);
+    const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+
+    if (userJson && accessToken && refreshToken) {
+      try {
+        const stored = JSON.parse(userJson) as User;
+        this.currentUser.set(stored);
+        this.isLoggedIn.set(true);
+        return;
+      } catch {
+        this.clearSession();
+      }
+    }
+
+    // Keeps user logged in after page reload when only refresh token is still valid.
+    if (refreshToken) {
+      void this.refreshAccessToken();
     }
   }
 

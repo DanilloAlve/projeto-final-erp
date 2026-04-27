@@ -18,7 +18,11 @@ export class Login {
   showError = signal(false);
   errorMessage = signal('');
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) {
+    if (this.authService.isAuthenticated()) {
+      void this.router.navigate(['/dashboard']);
+    }
+  }
 
   async login() {
     this.showError.set(false);

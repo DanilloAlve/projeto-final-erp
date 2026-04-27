@@ -49,11 +49,11 @@
           <tbody>
             <tr *ngFor="let m of movimentacoesFiltradas">
               <td>{{ formatDateTime(m.created_at) }}</td>
-              <td>{{ m.produto?.codigo }} - {{ m.produto?.nome }}</td>
+              <td>{{ m.produto.codigo }} - {{ m.produto.nome }}</td>
               <td>{{ m.tipo === 'entrada' ? 'ENTRADA' : 'SAÍDA' }}</td>
               <td>{{ m.motivoLabel }}</td>
               <td>{{ m.tipo === 'entrada' ? '+' : '-' }}{{ m.quantidade }}</td>
-              <td>{{ m.usuario?.nome }}</td>
+              <td>{{ m.usuario.nome }}</td>
               <td>{{ m.observacao || '-' }}</td>
             </tr>
           </tbody>
