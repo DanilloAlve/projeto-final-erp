@@ -1,0 +1,4 @@
+/node_modules /* Ignore node_modules directory */
+/dist /* Ignore dist directory */
+.env
+. env.*

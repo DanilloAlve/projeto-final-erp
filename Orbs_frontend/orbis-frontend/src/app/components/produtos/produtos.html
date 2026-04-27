@@ -1,0 +1,168 @@
+<div class="produtos-container">
+  <nav class="navbar" [class.recolhida]="menuRecolhido()">
+    <div class="navbar-brand">
+      <img src="/orbis-logo.svg" alt="Orbis logo" class="logo-navbar" />
+      <span>Orbis</span>
+    </div>
+
+    <button (click)="toggleMenuRecolhido()" class="btn-toggle" type="button" aria-label="Alternar menu">
+      <span class="toggle-arrow" aria-hidden="true">❮</span>
+      <span class="toggle-bars" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+    </button>
+
+    <div class="navbar-menu" [class.ativo]="menuAberto()">
+      <a (click)="irParaDashboard()" class="menu-item">
+        <span class="label">Dashboard</span>
+      </a>
+      <a href="#" class="menu-item ativo">
+        <span class="label">Produtos</span>
+      </a>
+      <a *ngIf="podeVerFinanceiro()" (click)="irParaFinanceiro()" class="menu-item">
+        <span class="label">Financeiro</span>
+      </a>
+      <a *ngIf="podeVerMovimentacoes()" (click)="irParaMovimentacoes()" class="menu-item">
+        <span class="label">Movimentações</span>
+      </a>
+      <a *ngIf="podeVerClientes()" (click)="irParaClientes()" class="menu-item">
+        <span class="label">Clientes</span>
+      </a>
+      <a *ngIf="podeVerPedidos()" (click)="irParaPedidos()" class="menu-item">
+        <span class="label">Pedidos</span>
+      </a>
+      <a *ngIf="podeVerUsuarios()" (click)="irParaUsuarios()" class="menu-item">
+        <span class="label">Usuários</span>
+      </a>
+    </div>
+
+    <div class="navbar-user">
+      <button (click)="logout()" class="btn-logout">Sair</button>
+    </div>
+  </nav>
+
+  <div class="produtos-content">
+    <div class="produtos-header">
+      <h1>Gerenciamento de Produtos</h1>
+      <button class="btn-novo" (click)="abrirModalNovo()">+ Novo Produto</button>
+    </div>
+
+    <div *ngIf="loading()" class="loading-message">
+      Carregando produtos...
+    </div>
+    <div *ngIf="!loading() && errorMessage()" class="error-message">
+      {{ errorMessage() }}
+    </div>
+
+    <div class="produtos-filtros">
+      <input type="text" placeholder="Buscar produto..." class="input-busca" />
+      <select class="select-filtro">
+        <option>Todos</option>
+        <option>Em Estoque</option>
+        <option>Fora de Estoque</option>
+      </select>
+    </div>
+
+    <table class="produtos-table">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Descrição</th>
+          <th>Preço (unitário)</th>
+          <th>Estoque</th>
+          <th>Data de entrada</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let produto of produtos">
+          <td><strong>{{ produto.nome }}</strong></td>
+          <td>{{ produto.descricao }}</td>
+          <td>R$ {{ produto.preco.toFixed(2) }}</td>
+          <td>
+            <span class="estoque-badge" [class.baixo]="produto.estoque_atual < produto.estoque_minimo">
+              {{ produto.estoque_atual }}
+            </span>
+          </td>
+          <td>{{ produto.created_at ? (produto.created_at | date: 'dd/MM/yyyy':undefined:'America/Manaus') : '-' }}</td>
+          <td class="acoes">
+            <button (click)="abrirModalEditar(produto)" class="btn-acao editar">✎</button>
+            <button (click)="abrirModalEditar(produto)" class="btn-acao deletar">🗑️</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="mostraModal()" class="modal" (click)="fecharModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h2>{{ formulario().id ? 'Editar Produto' : 'Novo Produto' }}</h2>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nome</label>
+          <select [ngModel]="formulario().nome" (ngModelChange)="onNomeProdutoChange($event)">
+            <option *ngFor="let opt of opcoesProduto" [ngValue]="opt">{{ opt }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Código</label>
+          <input type="text" [ngModel]="formulario().codigo" disabled />
+        </div>
+
+        <div class="form-group full">
+          <label>Descrição</label>
+          <input type="text" [(ngModel)]="formulario().descricao" />
+        </div>
+
+        <div class="form-group">
+          <label>Preço</label>
+          <input
+            type="text"
+            inputmode="numeric"
+            [ngModel]="formulario().precoInput"
+            (ngModelChange)="onPrecoInputChange($event)"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Quantidade</label>
+          <input type="number" min="1" step="1" [(ngModel)]="formulario().quantidade" />
+        </div>
+
+        <div class="form-group">
+          <label>Estoque mínimo</label>
+          <input type="number" [(ngModel)]="formulario().estoque_minimo" />
+        </div>
+
+        <div class="form-group">
+          <label>Estoque máximo</label>
+          <input type="number" [(ngModel)]="formulario().estoque_maximo" />
+        </div>
+
+        <div class="form-group">
+          <label>Ativo</label>
+          <select [(ngModel)]="formulario().ativo">
+            <option [ngValue]="true">Sim</option>
+            <option [ngValue]="false">Não</option>
+          </select>
+        </div>
+
+        <div class="form-group full">
+          <label>Categoria (id)</label>
+          <input type="text" [(ngModel)]="formulario().categoriaId" />
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-primary" (click)="salvarProduto()" [disabled]="salvando()">Salvar</button>
+        <button class="btn btn-danger" (click)="excluirProdutoModal()" [disabled]="excluindo() || !formulario().id">Excluir</button>
+        <button class="btn btn-secondary" (click)="fecharModal()">Sair</button>
+      </div>
+    </div>
+  </div>
+</div>

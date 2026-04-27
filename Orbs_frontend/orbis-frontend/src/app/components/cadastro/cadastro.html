@@ -1,0 +1,129 @@
+<div class="cadastro-container">
+  <div class="cadastro-layout">
+    <div class="cadastro-imagem"></div>
+
+    <div class="cadastro-form-container">
+      <h1>Cadastro</h1>
+
+      <form (ngSubmit)="criarConta()" class="cadastro-form">
+        <div class="form-group">
+          <input
+            type="text"
+            [(ngModel)]="nome"
+            name="nome"
+            placeholder="Nome"
+            class="form-input"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <input
+            type="email"
+            [(ngModel)]="email"
+            name="email"
+            placeholder="E-mail"
+            class="form-input"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <select
+            [(ngModel)]="perfil"
+            name="perfil"
+            class="form-input"
+            required
+          >
+            <option value="" disabled>Selecione o perfil</option>
+            <option *ngFor="let p of perfis" [value]="p">{{ p }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <div class="password-input-wrapper">
+            <input
+              [type]="senhaVisivel() ? 'text' : 'password'"
+              [(ngModel)]="senha"
+              name="senha"
+              placeholder="Senha"
+              class="form-input"
+              required
+            />
+            <button
+              type="button"
+              class="btn-show-password"
+              (click)="senhaVisivel.set(!senhaVisivel())"
+            >
+              {{ senhaVisivel() ? '👁️‍🗨️' : '🔒' }}
+            </button>
+          </div>
+
+          <div class="requisitos-senha">
+            <div class="requisito" [class.atendido]="getSenhaRequisitos().tamanho">
+              <span class="check">{{ getSenhaRequisitos().tamanho ? '✓' : '○' }}</span>
+              Pelo menos 8 caracteres
+            </div>
+            <div class="requisito" [class.atendido]="getSenhaRequisitos().maiuscula">
+              <span class="check">{{ getSenhaRequisitos().maiuscula ? '✓' : '○' }}</span>
+              Letras maiúsculas
+            </div>
+            <div class="requisito" [class.atendido]="getSenhaRequisitos().minuscula">
+              <span class="check">{{ getSenhaRequisitos().minuscula ? '✓' : '○' }}</span>
+              Letras minúsculas
+            </div>
+            <div class="requisito" [class.atendido]="getSenhaRequisitos().numero">
+              <span class="check">{{ getSenhaRequisitos().numero ? '✓' : '○' }}</span>
+              Números
+            </div>
+            <div class="requisito" [class.atendido]="getSenhaRequisitos().especial">
+              <span class="check">{{ getSenhaRequisitos().especial ? '✓' : '○' }}</span>
+              Ao menos 1 caractere especial
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="password-input-wrapper">
+            <input
+              [type]="confirmacaoVisivel() ? 'text' : 'password'"
+              [(ngModel)]="confirmacaoSenha"
+              name="confirmacaoSenha"
+              placeholder="Confirmação"
+              class="form-input"
+              required
+            />
+            <button
+              type="button"
+              class="btn-show-password"
+              (click)="confirmacaoVisivel.set(!confirmacaoVisivel())"
+            >
+              {{ confirmacaoVisivel() ? '👁️‍🗨️' : '🔒' }}
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="showError()" class="error-message">
+          {{ errorMessage() }}
+        </div>
+
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="termosSenha" name="termosSenha" />
+          Concordo com os
+          <span class="termos-links">
+            <a href="#">Termos de Serviço</a>
+            e a
+            <a href="#">Política de Privacidade</a>
+          </span>
+        </label>
+
+        <button type="submit" class="btn-cadastrar">Criar Conta</button>
+      </form>
+
+      <div class="login-link">
+        Já tem uma conta?
+        <a (click)="voltarLogin()" class="link">Entrar</a>
+      </div>
+    </div>
+  </div>
+</div>

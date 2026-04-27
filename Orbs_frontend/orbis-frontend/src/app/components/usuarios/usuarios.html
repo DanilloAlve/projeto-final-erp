@@ -1,0 +1,208 @@
+<div class="page-container">
+  <nav class="navbar" [class.recolhida]="menuRecolhido()">
+    <div class="navbar-brand">
+      <img src="/orbis-logo.svg" alt="Orbis logo" class="logo-navbar" />
+      <span>Orbis</span>
+    </div>
+
+    <button (click)="toggleMenuRecolhido()" class="btn-toggle" type="button" aria-label="Alternar menu">
+      <span class="toggle-arrow" aria-hidden="true">❮</span>
+      <span class="toggle-bars" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+    </button>
+
+    <div class="navbar-menu" [class.ativo]="menuAberto()">
+      <a (click)="irParaDashboard()" class="menu-item">
+        <span class="label">Dashboard</span>
+      </a>
+      <a *ngIf="podeVerProdutos()" (click)="irParaProdutos()" class="menu-item">
+        <span class="label">Produtos</span>
+      </a>
+      <a *ngIf="podeVerFinanceiro()" (click)="irParaFinanceiro()" class="menu-item">
+        <span class="label">Financeiro</span>
+      </a>
+      <a *ngIf="podeVerMovimentacoes()" (click)="irParaMovimentacoes()" class="menu-item">
+        <span class="label">Movimentações</span>
+      </a>
+      <a *ngIf="podeVerClientes()" (click)="irParaClientes()" class="menu-item">
+        <span class="label">Clientes</span>
+      </a>
+      <a *ngIf="podeVerPedidos()" (click)="irParaPedidos()" class="menu-item">
+        <span class="label">Pedidos</span>
+      </a>
+      <a href="#" class="menu-item ativo">
+        <span class="label">Usuários</span>
+      </a>
+    </div>
+
+    <div class="navbar-user">
+      <button (click)="logout()" class="btn-logout">Sair</button>
+    </div>
+  </nav>
+
+  <div class="page-content">
+    <div class="usuarios-container">
+      <h1>Gerenciamento de Usuários</h1>
+
+  <!-- Filtros -->
+  <div class="filtros">
+    <div class="filtro-group">
+      <label>Perfil:</label>
+      <select [(ngModel)]="filtros.perfil" (change)="aplicarFiltros()" class="filtro-input">
+        <option value="">Todos</option>
+        <option *ngFor="let perfil of perfisDisponiveis" [value]="perfil">
+          {{ perfil }}
+        </option>
+      </select>
+    </div>
+
+    <div class="filtro-group">
+      <label>Status:</label>
+      <select [(ngModel)]="filtros.ativo" (change)="aplicarFiltros()" class="filtro-input">
+        <option value="">Todos</option>
+        <option value="true">Ativo</option>
+        <option value="false">Inativo</option>
+      </select>
+    </div>
+
+    <div class="filtro-group">
+      <label>Busca:</label>
+      <input
+        type="text"
+        [(ngModel)]="filtros.busca"
+        (input)="aplicarFiltros()"
+        placeholder="Nome ou email..."
+        class="filtro-input"
+      />
+    </div>
+  </div>
+
+  <!-- Botão Novo Usuário -->
+  <div class="actions">
+    <button (click)="abrirModal()" class="btn btn-primary">+ Novo Usuário</button>
+  </div>
+
+  <!-- Tabela de Usuários -->
+  <div class="tabela-container">
+    <table class="usuarios-table" *ngIf="!carregando">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Email</th>
+          <th>Perfil</th>
+          <th>Status</th>
+          <th>Criado em</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let usuario of usuariosFiltrados">
+          <td>{{ usuario.nome }}</td>
+          <td>{{ usuario.email }}</td>
+          <td>
+            <span
+              *ngIf="usuario.perfil; else semPerfil"
+              class="badge"
+              [ngClass]="'badge-' + usuario.perfil.toLowerCase()"
+            >
+              {{ usuario.perfil }}
+            </span>
+            <ng-template #semPerfil> - </ng-template>
+          </td>
+          <td>
+            <span [ngClass]="usuario.ativo ? 'status-ativo' : 'status-inativo'">
+              {{ usuario.ativo ? 'Ativo' : 'Inativo' }}
+            </span>
+          </td>
+          <td>{{ usuario.criadoEm ? (usuario.criadoEm | date: 'short') : '-' }}</td>
+          <td class="acoes">
+            <button
+              (click)="abrirModal(usuario)"
+              class="btn btn-small btn-info"
+              title="Editar"
+            >
+              ✏️
+            </button>
+            <button class="btn btn-small" disabled title="Ação não disponível na API">
+              {{ usuario.ativo ? '🔓' : '🔒' }}
+            </button>
+            <button
+              (click)="abrirConfirmacaoExclusao(usuario.id_user)"
+              class="btn btn-small btn-danger"
+              title="Excluir"
+            >
+              🗑️
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="carregando" class="loading">
+      Carregando usuários...
+    </div>
+
+    <div *ngIf="!carregando && usuariosFiltrados.length === 0" class="empty">
+      Nenhum usuário encontrado
+    </div>
+  </div>
+
+  <!-- Modal de Usuário -->
+  <div *ngIf="mostraModal" class="modal">
+    <div class="modal-content">
+      <h2>{{ formulario.isEdicao ? 'Editar Usuário' : 'Novo Usuário' }}</h2>
+
+      <div class="form-group">
+        <label>Nome:</label>
+        <input type="text" [(ngModel)]="formulario.nome" (input)="validarFormulario()" placeholder="Nome completo" />
+        <div class="field-help">Obrigatório.</div>
+        <div class="field-error" *ngIf="errosFormulario.nome">{{ errosFormulario.nome }}</div>
+      </div>
+
+      <div class="form-group">
+        <label>Email:</label>
+        <input type="email" [(ngModel)]="formulario.email" (input)="validarFormulario()" placeholder="email@dominio.com" />
+        <div class="field-help">Use o mesmo email que você vai usar para entrar no sistema. Formato: nome@dominio.com</div>
+        <div class="field-error" *ngIf="errosFormulario.email">{{ errosFormulario.email }}</div>
+      </div>
+
+      <div class="form-group" *ngIf="!formulario.isEdicao">
+        <label>Senha:</label>
+        <input type="password" [(ngModel)]="formulario.password" (input)="validarFormulario()" placeholder="Mínimo 6 caracteres" />
+        <div class="field-help">Mínimo 6 caracteres. Precisa ter: 1 letra maiúscula, 1 letra minúscula e 1 caractere especial.</div>
+        <div class="field-error" *ngIf="errosFormulario.password">{{ errosFormulario.password }}</div>
+      </div>
+
+      <div class="form-group">
+        <label>Perfil:</label>
+        <select [(ngModel)]="formulario.perfil" (change)="validarFormulario()">
+          <option *ngFor="let perfil of perfisDisponiveis" [value]="perfil">
+            {{ perfil }}
+          </option>
+        </select>
+      </div>
+
+      <div class="modal-actions">
+        <button (click)="salvarUsuario()" class="btn btn-primary" [disabled]="!formularioValido()">Salvar</button>
+        <button (click)="fecharModal()" class="btn btn-secondary">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+      <!-- Modal de Confirmação -->
+      <div *ngIf="mostraConfirmacao" class="modal">
+        <div class="modal-content modal-confirmacao">
+          <h3>Confirmar exclusão</h3>
+          <p>Tem certeza que deseja excluir este usuário?</p>
+          <div class="modal-actions">
+            <button (click)="confirmarExclusao()" class="btn btn-danger">Excluir</button>
+            <button (click)="fecharConfirmacao()" class="btn btn-secondary">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

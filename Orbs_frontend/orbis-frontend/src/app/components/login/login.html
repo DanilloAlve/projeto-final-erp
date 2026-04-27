@@ -1,0 +1,87 @@
+<div class="login-container">
+  <div class="login-box">
+    <div class="logo-section">
+      <div class="orbis-logo">
+        <img src="/orbis-logo.png" alt="Orbis logo" />
+      </div>
+      <h1>Orbis</h1>
+      <p class="subtitle">Sistema de gestão empresarial</p>
+    </div>
+
+    <form (ngSubmit)="login()" class="login-form">
+      <div class="form-group">
+        <input
+          type="email"
+          [(ngModel)]="email"
+          name="email"
+          placeholder="E-mail"
+          class="form-input"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <div class="password-field">
+          <input
+            [type]="mostrarSenha() ? 'text' : 'password'"
+            [(ngModel)]="password"
+            name="password"
+            placeholder="Senha"
+            class="form-input"
+            required
+          />
+          <button
+            type="button"
+            class="btn-eye"
+            (click)="toggleMostrarSenha()"
+            [attr.aria-label]="mostrarSenha() ? 'Ocultar senha' : 'Mostrar senha'"
+          >
+            <svg *ngIf="!mostrarSenha()" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path
+                d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7Zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10Zm0-2.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"
+              />
+            </svg>
+            <svg *ngIf="mostrarSenha()" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path
+                d="M12 5c-7 0-10 7-10 7 1.1 2.2 3.6 5.8 7.8 6.8l-1.7-1.7C5.5 16.4 4 14.2 3.2 12c1.2-2.4 4-5.5 8.8-5.5 1.3 0 2.5.2 3.5.6l-1.7-1.7C13.3 5.1 12.7 5 12 5Z"
+              />
+              <path
+                d="M21.8 12s-1.6 3.7-5.2 5.7l-1.5-1.5c1.7-.8 3-2.2 3.7-4.2-1.2-2.4-4-5.5-8.8-5.5-.5 0-1 .04-1.4.12L7 5.1C8.4 4.7 10.1 4.5 12 4.5 19 4.5 22 12 22 12Z"
+              />
+              <path d="M3.2 3.2 20.8 20.8" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="showError()" class="error-message">
+        {{ errorMessage() }}
+      </div>
+
+      <button type="submit" class="btn-enter">Entrar</button>
+    </form>
+
+    <div class="login-options">
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe" />
+        Lembrar-me
+      </label>
+      <a href="#" (click)="forgotPassword()" class="forgot-password">Esqueci a senha?</a>
+    </div>
+
+    <div class="divider">Ou entre com</div>
+
+    <div class="social-login">
+      <button type="button" class="btn-social google">
+        <span>G</span> Google
+      </button>
+      <button type="button" class="btn-social microsoft">
+        <span>⊞</span> Microsoft
+      </button>
+    </div>
+
+    <div class="register-link">
+      Não tem uma conta? <a (click)="goToRegister()" class="link">Cadastre-se</a>
+    </div>
+  </div>
+</div>

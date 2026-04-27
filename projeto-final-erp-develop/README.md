@@ -14,6 +14,18 @@ O sistema foi projetado seguindo o padrão de **arquitetura REST**, garantindo e
 
 ---
 
+## 🧩 Problema Resolvido
+
+Muitas indústrias ainda utilizam sistemas isolados ou planilhas para gerenciar suas operações, o que causa:
+
+* Retrabalho
+* Falta de integração entre setores
+* Erros manuais
+* Dificuldade na tomada de decisão
+
+Este ERP resolve esses problemas ao centralizar todas as informações em um único sistema.
+
+---
 
 ## 🛠️ Tecnologias Utilizadas
 
@@ -41,6 +53,11 @@ O sistema foi projetado seguindo o padrão de **arquitetura REST**, garantindo e
 
 ## 🏗️ Arquitetura do Sistema
 
+O sistema pode ser estruturado em:
+
+* **Monolito modular** (Node.js)
+  ou
+* **Microserviços**:
 
   * Node.js → API principal
   * Spring Boot → serviços críticos (ex: financeiro)
@@ -84,6 +101,33 @@ O sistema foi projetado seguindo o padrão de **arquitetura REST**, garantindo e
 * Produtos com estoque baixo
 * Vendas do período
 
+---
+
+## 🗂️ Estrutura de Pastas
+
+```
+projeto-final-erp/
+│
+├── src/
+│   ├── controllers/
+│   ├── database/
+│   ├── dto/
+│   ├── entities/
+│	├── erros/
+│	├── middliware/
+│	├── middliware/
+│	├── routes/
+│	├── services/
+│   └── types/
+│
+├── .env
+├── .gitignore
+├── docker-compose.yml
+├── package.json
+├── server.ts
+├── tsconfig.js
+└── README.md
+```
 
 ---
 
@@ -103,6 +147,7 @@ cd projeto-final-erp
 Crie um arquivo `.env`:
 
 ```env
+# Banco de dados
 JWT_ACCESS_SECRET="CHAVE SECRETA ACCESS"
 JWT_ACCESS_EXPIRATION="15m"
 JWT_REFRESH_SECRET="CHAVE SECRETA REFRESH"
@@ -122,27 +167,42 @@ DB_NAME=erp_db
 
 ```bash
 npm init -y  
+#4.1 Instalando tudo de uma vez
 npm install express typeorm pg reflect-metadata bcryptjs jsonwebtoken dotenv zod tsx typescript nodemon compression helmet express-rate-limit
 
+#Instalando os tipos TypeScript
 npm install -D @types/express @types/node @types/bcryptjs @types/jsonwebtoken @types/compression
 
+#Criando o arquivo tsconfig.json
 npx tsc --init
 
+#Criando o arquivo .env
 Crie o arquivo .env na raiz do projeto da seguinte forma:
+# Banco de dados
 DB_HOST=localhost
 DB_PORT=3306
 DB_USER=root
 DB_PASS=coloque_aqui_sua_senha_do_postgres
 DB_NAME=erp_db
 
+# Segredos do JWT
+# Coloque strings longas e aleatórias aqui
 JWT_ACCESS_SECRET=troque_isso_por_uma_string_muito_longa_e_aleatoria
 JWT_REFRESH_SECRET=outra_string_diferente_e_muito_longa_aqui
+# Servidor
 PORT=3000
 
 
 
 ```
 ---
+### 🔗 Relacionamento geral do ERP
+Cliente → Pedido
+Usuário → Pedido
+Pedido → ItemPedido
+ItemPedido → Produto
+Produto → Movimentação
+Pedido → Financeiro (pode ser integrado depois)
 
 ---
 
@@ -154,6 +214,13 @@ npm run dev
 
 ---
 
+## 🔌 Principais Endpoints
+
+### Auth
+
+```
+POST /auth/login
+```
 
 ### Usuários
 
@@ -189,9 +256,51 @@ POST /finance
 
 ---
 
+## 🔒 Regras de Negócio
+
+* Não é permitido vender produtos sem estoque
+* Toda venda reduz automaticamente o estoque
+* Senhas são armazenadas com hash
+* Todas as rotas (exceto login) exigem autenticação
+* Operações críticas devem usar transações no banco
+
+---
+
+## 📋 Requisitos
+
+### Funcionais
+
+* Autenticação com JWT
+* CRUD de usuários, produtos e clientes
+* Registro de pedidos
+* Controle financeiro
+* Dashboard
+
+### Não Funcionais
+
+* Segurança
+* Performance
+* Escalabilidade
+* Código organizado
+
+---
+
+## 🚧 Melhorias Futuras
+
+* Integração com sistemas bancários
+* Emissão de nota fiscal
+* Dashboard com gráficos avançados
+* Exportação de relatórios (CSV/PDF)
+* Deploy em nuvem
+
+---
+
 ## 👨‍💻 Autor
 
 Desenvolvido como projeto de estudo e prática em arquitetura de sistemas e desenvolvimento full stack.
 
 ---
 
+## 📄 Licença
+
+Este projeto está sob a licença MIT.
