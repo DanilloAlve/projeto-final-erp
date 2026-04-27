@@ -7,6 +7,7 @@ import { API_URL } from '../../services/constants';
 import { isHandledValidationError } from '../../services/http-error.utils';
 import { MessageService } from '../../services/message.service';
 import { PageLayoutComponent } from '../layout/page-layout';
+import { CurrencyInputComponent } from '../currency-input/currency-input';
 
 export interface Produto {
   id: string;
@@ -21,6 +22,11 @@ export interface Produto {
   categoriaId?: string;
   created_at?: string;
 }
+
+type CategoriaOption = {
+  id: string;
+  nome: string;
+};
 
 type ProdutoForm = {
   id?: string;
@@ -37,7 +43,7 @@ type ProdutoForm = {
 
 @Component({
   selector: 'app-produtos',
-  imports: [CommonModule, FormsModule, PageLayoutComponent],
+  imports: [CommonModule, FormsModule, PageLayoutComponent, CurrencyInputComponent],
   templateUrl: './produtos.html',
   styleUrl: './produtos.css',
 })
@@ -61,11 +67,13 @@ export class Produtos {
   });
 
   produtos: Produto[] = [];
+  categorias: CategoriaOption[] = [];
 
   constructor(
     private http: HttpClient
   ) {
     this.carregarProdutos();
+    this.carregarCategorias();
   }
 
   private mapApiProduto(p: any): Produto {
@@ -99,7 +107,25 @@ export class Produtos {
     }
   }
 
+  private mapApiCategoria(c: any): CategoriaOption {
+    return {
+      id: c.id_cat ?? c.id,
+      nome: c.nome,
+    };
+  }
+
+  async carregarCategorias() {
+    try {
+      const response = await firstValueFrom(this.http.get<any[]>(`${API_URL}/categorias`));
+      this.categorias = Array.isArray(response) ? response.map((c) => this.mapApiCategoria(c)) : [];
+    } catch (error) {
+      console.error('Erro ao carregar categorias:', error);
+      this.categorias = [];
+    }
+  }
+
   abrirModalNovo() {
+    void this.carregarCategorias();
     this.formulario.set({
       nome: '',
       descricao: '',
@@ -143,6 +169,7 @@ export class Produtos {
   }
 
   abrirModalEditar(produto: Produto) {
+    void this.carregarCategorias();
     this.formulario.set({
       id: produto.id,
       nome: produto.nome,
@@ -203,6 +230,7 @@ export class Produtos {
     try {
       this.salvando.set(true);
       const payload = this.buildPayloadFromForm(form);
+      const successMessage = form.id ? 'Produto atualizado com sucesso' : 'Produto criado com sucesso';
 
       if (form.id) {
         await firstValueFrom(this.http.put(`${API_URL}/produtos/${form.id}`, payload));
@@ -211,6 +239,7 @@ export class Produtos {
       }
 
       await this.carregarProdutos();
+      await MessageService.success(successMessage);
       this.fecharModal();
     } catch (error) {
       console.error('Erro ao salvar produto:', error);

@@ -45,6 +45,15 @@ export class MessageService {
     });
   }
 
+  static success(message: string, title = 'Sucesso') {
+    return Swal.fire({
+      icon: 'success',
+      title,
+      text: message,
+      confirmButtonText: 'OK',
+    });
+  }
+
   static async confirmDelete(message: string) {
     const result = await Swal.fire({
       icon: 'warning',

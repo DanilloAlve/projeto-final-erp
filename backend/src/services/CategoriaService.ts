@@ -26,6 +26,7 @@ export class CategoriaService {
     async findAll() {
         return await this.categoriaRepo.find({
             relations: { produtos: true },
+            order: { nome: "ASC" },
         });
     }
 

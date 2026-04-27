@@ -72,6 +72,12 @@ export class ProdutoService {
             ...(categoria ? { categoria } : {}),
         };
 
+        this.validateEstoqueLimites(
+            novoProdutoData.estoque_atual,
+            novoProdutoData.estoque_minimo,
+            novoProdutoData.estoque_maximo
+        );
+
         const novoProduto = this.produtoRepo.create(novoProdutoData);
 
         return await this.produtoRepo.save(novoProduto);
@@ -109,6 +115,12 @@ export class ProdutoService {
             ativo: data.ativo ?? produto.ativo,
         });
 
+        this.validateEstoqueLimites(
+            produto.estoque_atual,
+            produto.estoque_minimo,
+            produto.estoque_maximo
+        );
+
         return await this.produtoRepo.save(produto);
     }
 
@@ -116,6 +128,20 @@ export class ProdutoService {
         const result = await this.produtoRepo.delete(id as never);
         if (result.affected === 0) {
             throw new AppError("Produto nao encontrado!", 404);
+        }
+    }
+
+    private validateEstoqueLimites(
+        estoqueAtual: number,
+        estoqueMinimo: number,
+        estoqueMaximo: number | null
+    ) {
+        if (estoqueAtual < estoqueMinimo) {
+            throw new AppError("Estoque atual nao pode ser menor que o estoque minimo.", 422);
+        }
+
+        if (estoqueMaximo !== null && estoqueAtual > estoqueMaximo) {
+            throw new AppError("Estoque atual nao pode ser maior que o estoque maximo.", 422);
         }
     }
 }

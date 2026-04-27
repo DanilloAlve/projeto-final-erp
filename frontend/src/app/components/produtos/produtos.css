@@ -206,20 +206,10 @@
   color: #0a3d5c;
 }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
 .form-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
-}
-
-.form-group.full {
-  grid-column: 1 / -1;
 }
 
 .form-group label {
@@ -234,6 +224,10 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 14px;
+}
+
+.form-group app-currency-input {
+  display: block;
 }
 
 .modal-actions {
@@ -446,10 +440,6 @@
 
   .page-content {
     padding: 20px;
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr;
   }
 
   .produtos-header {

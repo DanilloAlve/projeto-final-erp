@@ -35,13 +35,13 @@
         <tr *ngFor="let produto of produtos">
           <td><strong>{{ produto.nome }}</strong></td>
           <td>{{ produto.descricao }}</td>
-          <td>R$ {{ produto.preco.toFixed(2) }}</td>
+          <td>{{ produto.preco | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
           <td>
             <span class="estoque-badge" [class.baixo]="produto.estoque_atual < produto.estoque_minimo">
               {{ produto.estoque_atual }}
             </span>
           </td>
-          <td>{{ produto.created_at ? (produto.created_at | date: 'dd/MM/yyyy':undefined:'America/Manaus') : '-' }}</td>
+          <td>{{ produto.created_at ? (produto.created_at | date: 'dd/MM/yyyy') : '-' }}</td>
           <td class="acoes">
             <button (click)="abrirModalEditar(produto)" class="btn-acao editar">✎</button>
             <button (click)="excluirProduto(produto)" class="btn-acao deletar" [disabled]="excluindo()">🗑</button>
@@ -54,53 +54,58 @@
     <div class="modal-content" (click)="$event.stopPropagation()">
       <h2>{{ formulario().id ? 'Editar Produto' : 'Novo Produto' }}</h2>
 
-      <div class="form-grid">
-        <div class="form-group">
+      <div class="row g-3">
+        <div class="form-group col-6">
           <label>Nome</label>
-          <input type="text" [ngModel]="formulario().nome" (ngModelChange)="onCampoTextoChange('nome', $event)" />
+          <input class="form-control" type="text" [ngModel]="formulario().nome" (ngModelChange)="onCampoTextoChange('nome', $event)" />
         </div>
 
-        <div class="form-group">
+        <div class="form-group col-6">
           <label>Código</label>
-          <input type="text" [ngModel]="formulario().codigo" (ngModelChange)="onCampoTextoChange('codigo', $event)" />
+          <input class="form-control" type="text" [ngModel]="formulario().codigo" (ngModelChange)="onCampoTextoChange('codigo', $event)" />
         </div>
 
-        <div class="form-group full">
+        <div class="form-group col-12">
           <label>Descrição</label>
-          <input type="text" [ngModel]="formulario().descricao" (ngModelChange)="onCampoTextoChange('descricao', $event)" />
+          <input class="form-control" type="text" [ngModel]="formulario().descricao" (ngModelChange)="onCampoTextoChange('descricao', $event)" />
         </div>
 
-        <div class="form-group">
+        <div class="form-group col-3">
           <label>Preço</label>
-          <input type="number" min="0" step="0.01" [ngModel]="formulario().preco" (ngModelChange)="onCampoNumeroChange('preco', $event)" />
+          <app-currency-input [ngModel]="formulario().preco" (ngModelChange)="onCampoNumeroChange('preco', $event)"></app-currency-input>
         </div>
 
-        <div class="form-group">
+        <div class="form-group col-3">
           <label>Estoque atual</label>
-          <input type="number" min="0" step="1" [ngModel]="formulario().estoque_atual" (ngModelChange)="onCampoNumeroChange('estoque_atual', $event)" />
+          <input class="form-control" type="number" min="0" step="1" [ngModel]="formulario().estoque_atual" (ngModelChange)="onCampoNumeroChange('estoque_atual', $event)" />
         </div>
 
-        <div class="form-group">
+        <div class="form-group col-3">
           <label>Estoque mínimo</label>
-          <input type="number" min="0" step="1" [ngModel]="formulario().estoque_minimo" (ngModelChange)="onCampoNumeroChange('estoque_minimo', $event)" />
+          <input class="form-control" type="number" min="0" step="1" [ngModel]="formulario().estoque_minimo" (ngModelChange)="onCampoNumeroChange('estoque_minimo', $event)" />
         </div>
 
-        <div class="form-group">
+        <div class="form-group col-3">
           <label>Estoque máximo</label>
-          <input type="number" min="0" step="1" [ngModel]="formulario().estoque_maximo" (ngModelChange)="onCampoNumeroChange('estoque_maximo', $event)" />
+          <input class="form-control" type="number" min="0" step="1" [ngModel]="formulario().estoque_maximo" (ngModelChange)="onCampoNumeroChange('estoque_maximo', $event)" />
         </div>
 
-        <div class="form-group">
-          <label>Ativo</label>
-          <select [ngModel]="formulario().ativo ? 'true' : 'false'" (ngModelChange)="onAtivoChange($event)">
-            <option value="true">Sim</option>
-            <option value="false">Não</option>
+        <div class="form-group col-12 col-md-8">
+          <label>Categoria</label>
+          <select class="form-select" [ngModel]="formulario().categoriaId" (ngModelChange)="onCampoTextoChange('categoriaId', $event)">
+            <option value="">Sem categoria</option>
+            <option *ngFor="let categoria of categorias" [value]="categoria.id">
+              {{ categoria.nome }}
+            </option>
           </select>
         </div>
 
-        <div class="form-group full">
-          <label>Categoria (id)</label>
-          <input type="text" [ngModel]="formulario().categoriaId" (ngModelChange)="onCampoTextoChange('categoriaId', $event)" />
+        <div class="form-group col-12 col-md-4">
+          <label>Ativo</label>
+          <select class="form-select" [ngModel]="formulario().ativo ? 'true' : 'false'" (ngModelChange)="onAtivoChange($event)">
+            <option value="true">Sim</option>
+            <option value="false">Não</option>
+          </select>
         </div>
       </div>
 
