@@ -1,0 +1,55 @@
+<div class="page-container">
+  <nav class="navbar" [class.recolhida]="menuRecolhido()">
+    <div class="navbar-brand">
+      <img src="/orbis-logo.svg" alt="Orbis logo" class="logo-navbar" />
+      <span>Orbis</span>
+    </div>
+
+    <button (click)="toggleMenuRecolhido()" class="btn-toggle" type="button" aria-label="Alternar menu">
+      <span class="toggle-arrow" aria-hidden="true">❮</span>
+      <span class="toggle-bars" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+    </button>
+
+    <div class="navbar-menu" [class.ativo]="menuAberto()">
+      <a (click)="irParaDashboard()" class="menu-item">
+        <span class="label">Dashboard</span>
+      </a>
+      <a *ngIf="podeVerProdutos()" (click)="irParaProdutos()" class="menu-item">
+        <span class="label">Produtos</span>
+      </a>
+      <a *ngIf="podeVerFinanceiro()" (click)="irParaFinanceiro()" class="menu-item">
+        <span class="label">Financeiro</span>
+      </a>
+      <a *ngIf="podeVerMovimentacoes()" (click)="irParaMovimentacoes()" class="menu-item">
+        <span class="label">Movimentações</span>
+      </a>
+      <a *ngIf="podeVerClientes()" (click)="irParaClientes()" class="menu-item">
+        <span class="label">Clientes</span>
+      </a>
+      <a href="#" class="menu-item ativo">
+        <span class="label">Pedidos</span>
+      </a>
+      <a *ngIf="podeVerUsuarios()" (click)="irParaUsuarios()" class="menu-item">
+        <span class="label">Usuários</span>
+      </a>
+    </div>
+
+    <div class="navbar-user">
+      <button (click)="logout()" class="btn-logout">Sair</button>
+    </div>
+  </nav>
+
+  <div class="page-content">
+    <div class="page-header">
+      <h1>Pedidos</h1>
+    </div>
+
+    <div class="page-card">
+      <p>Em desenvolvimento.</p>
+    </div>
+  </div>
+</div>

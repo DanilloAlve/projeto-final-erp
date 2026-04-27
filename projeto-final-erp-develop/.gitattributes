@@ -1,0 +1,48 @@
+# =========================
+# 🔹 Padrão geral
+# =========================
+* text=auto eol=lf
+
+# =========================
+# 🔹 Código fonte (forçar LF)
+# =========================
+*.ts text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.php text eol=lf
+
+# =========================
+# 🔹 Scripts (Linux/Mac)
+# =========================
+*.sh text eol=lf
+
+# =========================
+# 🔹 Scripts Windows
+# =========================
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# =========================
+# 🔹 Arquivos binários (não modificar)
+# =========================
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.zip binary
+*.exe binary
+
+# =========================
+# 🔹 Docker
+# =========================
+Dockerfile text eol=lf
+*.env text eol=lf
+
+# =========================
+# 🔹 Logs e temporários
+# =========================
+*.log text eol=lf

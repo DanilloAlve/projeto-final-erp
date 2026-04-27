@@ -1,0 +1,81 @@
+<div class="page-container">
+  <nav class="navbar" [class.recolhida]="menuRecolhido()">
+    <div class="navbar-brand">
+      <img src="/orbis-logo.svg" alt="Orbis logo" class="logo-navbar" />
+      <span>Orbis</span>
+    </div>
+
+    <button (click)="toggleMenuRecolhido()" class="btn-toggle" type="button" aria-label="Alternar menu">
+      <span class="toggle-arrow" aria-hidden="true">❮</span>
+      <span class="toggle-bars" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+    </button>
+
+    <div class="navbar-menu" [class.ativo]="menuAberto()">
+      <a (click)="irParaDashboard()" class="menu-item">
+        <span class="label">Dashboard</span>
+      </a>
+      <a *ngIf="podeVerProdutos()" (click)="irParaProdutos()" class="menu-item">
+        <span class="label">Produtos</span>
+      </a>
+      <a href="#" class="menu-item ativo">
+        <span class="label">Financeiro</span>
+      </a>
+      <a *ngIf="podeVerMovimentacoes()" (click)="irParaMovimentacoes()" class="menu-item">
+        <span class="label">Movimentações</span>
+      </a>
+      <a *ngIf="podeVerClientes()" (click)="irParaClientes()" class="menu-item">
+        <span class="label">Clientes</span>
+      </a>
+      <a *ngIf="podeVerPedidos()" (click)="irParaPedidos()" class="menu-item">
+        <span class="label">Pedidos</span>
+      </a>
+      <a *ngIf="podeVerUsuarios()" (click)="irParaUsuarios()" class="menu-item">
+        <span class="label">Usuários</span>
+      </a>
+    </div>
+
+    <div class="navbar-user">
+      <button (click)="logout()" class="btn-logout">Sair</button>
+    </div>
+  </nav>
+
+  <div class="page-content">
+    <div class="page-header">
+      <h1>Financeiro</h1>
+    </div>
+
+    <div class="page-card">
+      <div *ngIf="loading()" class="loading-message">Carregando...</div>
+      <div *ngIf="!loading() && errorMessage()" class="error-message">{{ errorMessage() }}</div>
+
+      <table class="financeiro-table" *ngIf="!loading()">
+        <thead>
+          <tr>
+            <th>Produto</th>
+            <th>Valor unitário</th>
+            <th>Quantidade total</th>
+            <th>Valor total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let l of linhasFinanceiro">
+            <td>{{ l.nome }}</td>
+            <td>{{ formatValorUnitario(l.valorUnitario) }}</td>
+            <td>{{ l.quantidade }}</td>
+            <td>{{ formatValorTotal(l.valorTotal) }}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3"><strong>Total geral</strong></td>
+            <td><strong>{{ formatValorTotal(totalGeral) }}</strong></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>

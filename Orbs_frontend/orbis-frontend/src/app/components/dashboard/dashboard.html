@@ -1,0 +1,110 @@
+<div class="dashboard-container">
+  <nav class="navbar" [class.recolhida]="menuRecolhido()">
+    <div class="navbar-brand">
+      <img src="/orbis-logo.svg" alt="Orbis logo" class="logo-navbar" />
+      <span>Orbis</span>
+    </div>
+
+    <button (click)="toggleMenuRecolhido()" class="btn-toggle" type="button" aria-label="Alternar menu">
+      <span class="toggle-arrow" aria-hidden="true">❮</span>
+      <span class="toggle-bars" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+    </button>
+
+    <div class="navbar-menu" [class.ativo]="menuAberto()">
+      <a href="#" class="menu-item ativo">
+        <span class="label">Dashboard</span>
+      </a>
+      <a *ngIf="podeVerProdutos()" (click)="irParaProdutos()" class="menu-item">
+        <span class="label">Produtos</span>
+      </a>
+      <a *ngIf="podeVerFinanceiro()" (click)="irParaFinanceiro()" class="menu-item">
+        <span class="label">Financeiro</span>
+      </a>
+      <a *ngIf="podeVerMovimentacoes()" (click)="irParaMovimentacoes()" class="menu-item">
+        <span class="label">Movimentações</span>
+      </a>
+      <a *ngIf="podeVerClientes()" (click)="irParaClientes()" class="menu-item">
+        <span class="label">Clientes</span>
+      </a>
+      <a *ngIf="podeVerPedidos()" (click)="irParaPedidos()" class="menu-item">
+        <span class="label">Pedidos</span>
+      </a>
+      <a *ngIf="podeVerUsuarios()" (click)="irParaUsuarios()" class="menu-item">
+        <span class="label">Usuários</span>
+      </a>
+    </div>
+
+    <div class="navbar-user">
+      <button (click)="logout()" class="btn-logout">Sair</button>
+    </div>
+  </nav>
+
+  <div class="dashboard-content">
+    <div class="dashboard-header">
+      <h1>Bem-vindo, {{ currentUser()?.nome }}</h1>
+      <p class="user-function">{{ currentUser()?.funcao }}</p>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="card">
+        <div class="card-header">
+          <h3>Total de Vendas</h3>
+        </div>
+        <div class="card-value">R$ 45.230,00</div>
+        <p class="card-subtitle">Este mês</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Produtos</h3>
+        </div>
+        <div class="card-value">128</div>
+        <p class="card-subtitle">Em estoque</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Clientes</h3>
+        </div>
+        <div class="card-value">45</div>
+        <p class="card-subtitle">Ativos</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Crescimento</h3>
+        </div>
+        <div class="card-value">15%</div>
+        <p class="card-subtitle">Último período</p>
+      </div>
+    </div>
+
+    <div class="recent-section">
+      <h2>Atividades Recentes</h2>
+      <div class="activity-list">
+        <div class="activity-item">
+          <div class="activity-content">
+            <p>Novo pedido recebido</p>
+            <span class="activity-time">Há 2 horas</span>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-content">
+            <p>Estoque baixo em Produto A</p>
+            <span class="activity-time">Há 4 horas</span>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-content">
+            <p>Novo usuário registrado</p>
+            <span class="activity-time">Há 6 horas</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

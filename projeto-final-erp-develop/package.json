@@ -1,0 +1,51 @@
+{
+  "name": "erp",
+  "version": "1.0.0",
+  "description": "Backend do sistema de ERP INDT",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "db:reset": "bash scripts/reset-db.sh",
+    "db:seed": "tsx src/seeds/admin.seed.ts",
+    "db:setup": "npm run db:reset && npm run db:seed"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "compression": "^1.8.1",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.3.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.20.0",
+    "nodemon": "^3.1.14",
+    "pg": "^8.20.0",
+    "reflect-metadata": "^0.2.2",
+    "tsx": "^4.21.0",
+    "typeorm": "^0.3.28",
+    "typescript": "^6.0.2",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/compression": "^1.8.1",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^25.5.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lucymary-am/projeto-final-erp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lucymary-am/projeto-final-erp/issues"
+  },
+  "homepage": "https://github.com/lucymary-am/projeto-final-erp#readme"
+}
