@@ -1,9 +1,70 @@
 <app-page-layout currentPage="clientes">
-    <div class="page-header">
-      <h1>Clientes</h1>
-    </div>
+  <div class="page-header clientes-header">
+    <h1>Gerenciamento de Clientes</h1>
+    <button class="btn-novo" (click)="abrirModalNovo()">+ Novo Cliente</button>
+  </div>
 
-    <div class="page-card">
-      <p>Em desenvolvimento.</p>
+  <div *ngIf="loading()" class="loading-message">
+    Carregando clientes...
+  </div>
+  <div *ngIf="!loading() && errorMessage()" class="error-message">
+    {{ errorMessage() }}
+  </div>
+
+  <table class="clientes-table">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>CPF/CNPJ</th>
+        <th>E-mail</th>
+        <th>Telefone</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let cliente of clientes">
+        <td><strong>{{ cliente.nome }}</strong></td>
+        <td>{{ formatarCpfCnpj(cliente.cpf_cnpj) }}</td>
+        <td>{{ cliente.email || '-' }}</td>
+        <td>{{ cliente.telefone || '-' }}</td>
+        <td class="acoes">
+          <button (click)="abrirModalEditar(cliente)" class="btn-acao editar">✎</button>
+          <button (click)="excluirCliente(cliente)" class="btn-acao deletar" [disabled]="excluindo()">🗑</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="mostraModal()" class="modal" (click)="fecharModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h2>{{ formulario().id ? 'Editar Cliente' : 'Novo Cliente' }}</h2>
+
+      <div class="row g-3">
+        <div class="form-group col-12">
+          <label>Nome</label>
+          <input class="form-control" type="text" [ngModel]="formulario().nome" (ngModelChange)="onCampoTextoChange('nome', $event)" />
+        </div>
+
+        <div class="form-group col-12 col-md-6">
+          <label>CPF/CNPJ</label>
+          <input class="form-control" type="text" maxlength="14" inputmode="numeric" pattern="[0-9]*" [ngModel]="formulario().cpf_cnpj" (ngModelChange)="onCampoTextoChange('cpf_cnpj', $event)" (keydown)="bloquearTeclaNaoNumerica($event)" (paste)="tratarColagemCpfCnpj($event)" />
+        </div>
+
+        <div class="form-group col-12 col-md-6">
+          <label>Telefone</label>
+          <input class="form-control" type="text" [ngModel]="formulario().telefone" (ngModelChange)="onCampoTextoChange('telefone', $event)" />
+        </div>
+
+        <div class="form-group col-12">
+          <label>E-mail</label>
+          <input class="form-control" type="email" [ngModel]="formulario().email" (ngModelChange)="onCampoTextoChange('email', $event)" />
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-primary" (click)="salvarCliente()" [disabled]="salvando()">Salvar</button>
+        <button class="btn btn-secondary" (click)="fecharModal()">Sair</button>
+      </div>
     </div>
+  </div>
 </app-page-layout>
