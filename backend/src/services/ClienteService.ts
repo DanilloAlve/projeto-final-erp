@@ -28,7 +28,7 @@ if (/^(\d)\1{10}$/.test(cpf)) return false;
 const calcularDigito = (base: string, pesoInicial: number): number => {
     let soma = 0;
     for (let i = 0; i < base.length; i += 1) {
-    soma += Number(base[i]) * (pesoInicial - i);
+    soma += Number(base.charAt(i)) * (pesoInicial - i);
     }
     const resto = soma % 11;
     return resto < 2 ? 0 : 11 - resto;
@@ -46,7 +46,7 @@ if (/^(\d)\1{13}$/.test(cnpj)) return false;
 const calcularDigito = (base: string, pesos: number[]): number => {
     const soma = base
     .split("")
-    .reduce((acc, digito, index) => acc + Number(digito) * pesos[index], 0);
+    .reduce((acc, digito, index) => acc + Number(digito) * (pesos[index] ?? 0), 0);
     const resto = soma % 11;
     return resto < 2 ? 0 : 11 - resto;
 };
@@ -72,6 +72,9 @@ return clientes.some((cliente) => {
 }
 
 async create(data: Partial<Cliente>): Promise<Cliente> {
+if (!data.nome) {
+    throw new Error("Nome é obrigatório.");
+}
 if (!data.cpf_cnpj) {
     throw new Error("CPF/CNPJ é obrigatório.");
 }
@@ -86,8 +89,8 @@ if (clienteExistente) {
 const cliente = this.clienteRepository.create({
     nome: data.nome,
     cpf_cnpj: cpfCnpjNormalizado,
-    email: data.email,
-    telefone: data.telefone
+    ...(data.email !== undefined ? { email: data.email } : {}),
+    ...(data.telefone !== undefined ? { telefone: data.telefone } : {})
 });
 
 return await this.clienteRepository.save(cliente);

@@ -134,8 +134,9 @@ export class AuthService {
 
         if (!usuario) {
             const senhaAleatoria = await hash(`${randomUUID()}_${Date.now()}`, 10);
+            const nomeGoogle = payload.name ?? payload.email.split("@")[0] ?? "Usuario Google";
             usuario = this.userRepo.create({
-                nome: payload.name ?? payload.email.split("@")[0],
+                nome: nomeGoogle,
                 email: payload.email,
                 senha: senhaAleatoria,
                 perfil: Perfil.APENAS_VISUALIZACAO,

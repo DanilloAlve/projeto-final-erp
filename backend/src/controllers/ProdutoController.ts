@@ -24,17 +24,19 @@ export default class ProdutoController {
         const page = Number(req.query.page ?? 1);
         const limit = Number(req.query.limit ?? 10);
         const nome = typeof req.query.nome === "string" ? req.query.nome.trim() : "";
-        const estoque =
+        const estoque: "todos" | "em-estoque" | "fora-de-estoque" =
             req.query.estoque === "em-estoque" || req.query.estoque === "fora-de-estoque"
                 ? req.query.estoque
                 : "todos";
 
-        const produtos = await this.produtoService.findAll({
+        const params = {
             page: Number.isNaN(page) ? 1 : page,
             limit: Number.isNaN(limit) ? 10 : limit,
-            nome: nome || undefined,
             estoque,
-        });
+            ...(nome ? { nome } : {}),
+        };
+
+        const produtos = await this.produtoService.findAll(params);
         return res.status(200).json(produtos);
     }
 
