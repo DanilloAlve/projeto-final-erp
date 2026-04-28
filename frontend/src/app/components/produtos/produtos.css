@@ -287,6 +287,11 @@
   background: #f9f9f9;
 }
 
+.sem-resultados {
+  text-align: center;
+  color: #666;
+}
+
 .estoque-badge {
   display: inline-block;
   padding: 4px 12px;
@@ -327,6 +332,51 @@
   background: #ffebee;
   border-color: #dc2626;
   color: #dc2626;
+}
+
+.paginacao-container {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.paginacao-info {
+  color: #4b5563;
+  font-size: 14px;
+}
+
+.paginacao-botoes {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-paginacao {
+  padding: 8px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-paginacao:hover:not(:disabled) {
+  background: #f3f4f6;
+}
+
+.btn-paginacao:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.paginacao-pagina {
+  font-size: 14px;
+  color: #111827;
+  font-weight: 500;
 }
 
 @media (max-width: 768px) {
@@ -386,5 +436,10 @@
   .produtos-table th,
   .produtos-table td {
     padding: 12px 8px;
+  }
+
+  .paginacao-container {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

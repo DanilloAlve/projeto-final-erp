@@ -12,11 +12,17 @@
     </div>
 
     <div class="produtos-filtros">
-      <input type="text" placeholder="Buscar produto..." class="input-busca" />
-      <select class="select-filtro">
-        <option>Todos</option>
-        <option>Em Estoque</option>
-        <option>Fora de Estoque</option>
+      <input
+        type="text"
+        placeholder="Buscar produto..."
+        class="input-busca"
+        [ngModel]="buscaNome()"
+        (ngModelChange)="onBuscaNomeChange($event)"
+      />
+      <select class="select-filtro" [ngModel]="filtroEstoque()" (ngModelChange)="onFiltroEstoqueChange($event)">
+        <option value="todos">Todos</option>
+        <option value="em-estoque">Em Estoque</option>
+        <option value="fora-de-estoque">Fora de Estoque</option>
       </select>
     </div>
 
@@ -47,8 +53,26 @@
             <button (click)="excluirProduto(produto)" class="btn-acao deletar" [disabled]="excluindo()">🗑</button>
           </td>
         </tr>
+        <tr *ngIf="!loading() && produtos.length === 0">
+          <td colspan="6" class="sem-resultados">Nenhum produto encontrado.</td>
+        </tr>
       </tbody>
     </table>
+
+    <div class="paginacao-container" *ngIf="!loading() && totalItens() > 0">
+      <span class="paginacao-info">
+        Exibindo {{ inicioRegistros }}-{{ fimRegistros }} de {{ totalItens() }} produtos
+      </span>
+      <div class="paginacao-botoes">
+        <button class="btn-paginacao" (click)="irParaPaginaAnterior()" [disabled]="paginaAtual() === 1 || loading()">
+          Anterior
+        </button>
+        <span class="paginacao-pagina">Página {{ paginaAtual() }} de {{ totalPaginas() }}</span>
+        <button class="btn-paginacao" (click)="irParaProximaPagina()" [disabled]="paginaAtual() === totalPaginas() || loading()">
+          Próxima
+        </button>
+      </div>
+    </div>
 
   <div *ngIf="mostraModal()" class="modal" (click)="fecharModal()">
     <div class="modal-content" (click)="$event.stopPropagation()">

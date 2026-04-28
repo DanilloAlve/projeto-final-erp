@@ -17,6 +17,21 @@ export type CreateProdutoDTO = {
 
 export type UpdateProdutoDTO = Partial<CreateProdutoDTO>;
 
+type ListProdutosParams = {
+    page: number;
+    limit: number;
+    nome?: string;
+    estoque?: "todos" | "em-estoque" | "fora-de-estoque";
+};
+
+type PaginatedProdutosResult = {
+    data: Produto[];
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+};
+
 export class ProdutoService {
     private produtoRepo: Repository<Produto>;
     private categoriaRepo: Repository<Categoria>;
@@ -33,9 +48,53 @@ export class ProdutoService {
         });
     }
 
-    async findAll() {
+    async findAll(params: ListProdutosParams): Promise<PaginatedProdutosResult> {
+        const query = this.produtoRepo
+            .createQueryBuilder("produto")
+            .leftJoinAndSelect("produto.categoria", "categoria")
+            .orderBy("produto.created_at", "DESC");
+
+        if (params.nome) {
+            query.andWhere("LOWER(produto.nome) LIKE :nome", {
+                nome: `%${params.nome.toLowerCase()}%`,
+            });
+        }
+
+        if (params.estoque === "em-estoque") {
+            query.andWhere("produto.estoque_atual > 0");
+        }
+
+        if (params.estoque === "fora-de-estoque") {
+            query.andWhere("produto.estoque_atual <= 0");
+        }
+
+        const page = Math.max(1, params.page);
+        const limit = Math.max(1, params.limit);
+        query.take(limit);
+
+        const [firstPageData, total] = await query.getManyAndCount();
+        const totalPages = Math.max(1, Math.ceil(total / limit));
+        const safePage = Math.min(page, totalPages);
+        const skip = (safePage - 1) * limit;
+
+        let data = firstPageData;
+        if (skip > 0) {
+            data = await query.clone().skip(skip).getMany();
+        }
+
+        return {
+            data,
+            page: safePage,
+            limit,
+            total,
+            totalPages,
+        };
+    }
+
+    async findAllList() {
         return await this.produtoRepo.find({
             relations: { categoria: true },
+            order: { created_at: "DESC" },
         });
     }
 

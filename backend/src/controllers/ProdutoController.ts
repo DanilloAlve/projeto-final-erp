@@ -9,8 +9,32 @@ export default class ProdutoController {
         this.produtoService = produtoService;
     }
 
-    async findAllProduto(_req: Request, res: Response) {
-        const produtos = await this.produtoService.findAll();
+    async findAllProduto(req: Request, res: Response) {
+        const hasPaginationOrFilters =
+            req.query.page !== undefined ||
+            req.query.limit !== undefined ||
+            req.query.nome !== undefined ||
+            req.query.estoque !== undefined;
+
+        if (!hasPaginationOrFilters) {
+            const produtos = await this.produtoService.findAllList();
+            return res.status(200).json(produtos);
+        }
+
+        const page = Number(req.query.page ?? 1);
+        const limit = Number(req.query.limit ?? 10);
+        const nome = typeof req.query.nome === "string" ? req.query.nome.trim() : "";
+        const estoque =
+            req.query.estoque === "em-estoque" || req.query.estoque === "fora-de-estoque"
+                ? req.query.estoque
+                : "todos";
+
+        const produtos = await this.produtoService.findAll({
+            page: Number.isNaN(page) ? 1 : page,
+            limit: Number.isNaN(limit) ? 10 : limit,
+            nome: nome || undefined,
+            estoque,
+        });
         return res.status(200).json(produtos);
     }
 

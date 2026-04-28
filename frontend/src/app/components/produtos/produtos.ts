@@ -23,6 +23,8 @@ export interface Produto {
   created_at?: string;
 }
 
+type FiltroEstoque = 'todos' | 'em-estoque' | 'fora-de-estoque';
+
 type CategoriaOption = {
   id: string;
   nome: string;
@@ -48,8 +50,15 @@ type ProdutoForm = {
   styleUrl: './produtos.css',
 })
 export class Produtos {
+  private readonly itensPorPagina = 10;
+
   loading = signal(false);
   errorMessage = signal('');
+  buscaNome = signal('');
+  filtroEstoque = signal<FiltroEstoque>('todos');
+  paginaAtual = signal(1);
+  totalPaginas = signal(1);
+  totalItens = signal(0);
 
   mostraModal = signal(false);
   salvando = signal(false);
@@ -68,6 +77,16 @@ export class Produtos {
 
   produtos: Produto[] = [];
   categorias: CategoriaOption[] = [];
+
+  get inicioRegistros(): number {
+    if (this.totalItens() === 0) return 0;
+    return (this.paginaAtual() - 1) * this.itensPorPagina + 1;
+  }
+
+  get fimRegistros(): number {
+    if (this.totalItens() === 0) return 0;
+    return Math.min(this.paginaAtual() * this.itensPorPagina, this.totalItens());
+  }
 
   constructor(
     private http: HttpClient
@@ -92,19 +111,64 @@ export class Produtos {
     };
   }
 
-  async carregarProdutos() {
+  async carregarProdutos(page = this.paginaAtual()) {
     try {
       this.loading.set(true);
       this.errorMessage.set('');
 
-      const response = await firstValueFrom(this.http.get<any[]>(`${API_URL}/produtos`));
-      this.produtos = Array.isArray(response) ? response.map((p) => this.mapApiProduto(p)) : [];
+      const busca = this.buscaNome().trim();
+      const filtroEstoque = this.filtroEstoque();
+      const params: Record<string, string> = {
+        page: String(page),
+        limit: String(this.itensPorPagina),
+      };
+
+      if (busca) {
+        params['nome'] = busca;
+      }
+
+      if (filtroEstoque !== 'todos') {
+        params['estoque'] = filtroEstoque;
+      }
+
+      const response = await firstValueFrom(
+        this.http.get<any>(`${API_URL}/produtos`, { params })
+      );
+
+      const data = Array.isArray(response?.data) ? response.data : [];
+      this.produtos = data.map((p: any) => this.mapApiProduto(p));
+      this.paginaAtual.set(Number(response?.page) || 1);
+      this.totalPaginas.set(Math.max(1, Number(response?.totalPages) || 1));
+      this.totalItens.set(Number(response?.total) || 0);
     } catch (error) {
       console.error('Erro ao carregar produtos:', error);
       this.errorMessage.set('Erro ao carregar produtos');
+      this.produtos = [];
+      this.totalItens.set(0);
+      this.totalPaginas.set(1);
     } finally {
       this.loading.set(false);
     }
+  }
+
+  onBuscaNomeChange(valor: string) {
+    this.buscaNome.set(valor);
+    void this.carregarProdutos(1);
+  }
+
+  onFiltroEstoqueChange(valor: FiltroEstoque) {
+    this.filtroEstoque.set(valor);
+    void this.carregarProdutos(1);
+  }
+
+  irParaPaginaAnterior() {
+    if (this.paginaAtual() <= 1 || this.loading()) return;
+    void this.carregarProdutos(this.paginaAtual() - 1);
+  }
+
+  irParaProximaPagina() {
+    if (this.paginaAtual() >= this.totalPaginas() || this.loading()) return;
+    void this.carregarProdutos(this.paginaAtual() + 1);
   }
 
   private mapApiCategoria(c: any): CategoriaOption {
