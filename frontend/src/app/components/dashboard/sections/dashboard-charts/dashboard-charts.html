@@ -1,0 +1,27 @@
+<section class="dashboard-charts" aria-label="Gráficos">
+  <div class="chart-card chart-card--vendas">
+    <h3 class="chart-title">Vendas</h3>
+    <p class="chart-hint">Pedidos pagos nos últimos 6 meses</p>
+    @if (loading) {
+      <div class="chart-skeleton" aria-hidden="true"></div>
+    } @else {
+      <div class="chart-wrap">
+        <canvas #vendasChart role="img" aria-label="Gráfico de barras de vendas por mês"></canvas>
+      </div>
+    }
+  </div>
+
+  <div class="chart-card chart-card--produtos">
+    <h3 class="chart-title">Produtos por categoria</h3>
+    <p class="chart-hint">Produtos ativos no catálogo</p>
+    @if (loading) {
+      <div class="chart-skeleton chart-skeleton--donut" aria-hidden="true"></div>
+    } @else if ((graficos?.produtosPorCategoria?.length ?? 0) === 0) {
+      <p class="chart-empty">Nenhum produto ativo vinculado a categorias.</p>
+    } @else {
+      <div class="chart-wrap chart-wrap--donut">
+        <canvas #produtosChart role="img" aria-label="Gráfico de rosca de produtos por categoria"></canvas>
+      </div>
+    }
+  </div>
+</section>

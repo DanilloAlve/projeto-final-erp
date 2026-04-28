@@ -1,0 +1,27 @@
+<app-page-layout currentPage="dashboard">
+    <div class="page-header">
+      <h1>Bem-vindo, {{ currentUser()?.nome }}</h1>
+      <p class="user-function">{{ currentUser()?.funcao }}</p>
+    </div>
+
+    @if (errorMessage()) {
+      <p class="dashboard-error" role="alert">{{ errorMessage() }}</p>
+    }
+
+    <app-summary-cards [loading]="loading()" [resumo]="resumo()"></app-summary-cards>
+    <app-dashboard-charts [loading]="loading()" [graficos]="graficos()"></app-dashboard-charts>
+
+    <div class="dashboard-activities-estoque">
+      <app-recent-activities
+        [loading]="loading()"
+        [historicosRecentes]="historicosRecentes()"
+        [formatDataHistorico]="formatDataHistorico.bind(this)"
+      ></app-recent-activities>
+
+      <app-stock-status
+        [loading]="loading()"
+        [linhasStatusEstoque]="linhasStatusEstoque()"
+        [packageIconSrc]="packageIconSrc"
+      ></app-stock-status>
+    </div>
+</app-page-layout>

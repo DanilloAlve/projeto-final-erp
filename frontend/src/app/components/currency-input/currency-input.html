@@ -1,0 +1,15 @@
+<div class="currency-input-wrapper">
+  <span class="currency-prefix">R$</span>
+  <input
+    type="text"
+    class="currency-input"
+    [value]="displayValue"
+    [placeholder]="placeholder"
+    [disabled]="disabled"
+    inputmode="decimal"
+    autocomplete="off"
+    (input)="onInput($event)"
+    (keydown)="onKeyDown($event)"
+    (blur)="onBlur()"
+  />
+</div>

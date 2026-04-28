@@ -1,0 +1,218 @@
+<app-page-layout currentPage="usuarios">
+  <div class="page-header">
+    <h1>Gerenciamento de Usuários</h1>
+  </div>
+
+  <div class="page-card">
+    <div class="usuarios-container">
+      <div class="filtros">
+        <div class="filtro-group">
+          <label>Perfil:</label>
+          <select [(ngModel)]="filtros.perfil" (change)="aplicarFiltros()" class="filtro-input">
+            <option value="">Todos</option>
+            <option *ngFor="let p of perfisCadastro" [value]="p">{{ labelPerfil(p) }}</option>
+          </select>
+        </div>
+
+        <div class="filtro-group">
+          <label>Status:</label>
+          <select [(ngModel)]="filtros.ativo" (change)="aplicarFiltros()" class="filtro-input">
+            <option value="">Todos</option>
+            <option value="true">Ativo</option>
+            <option value="false">Inativo</option>
+          </select>
+        </div>
+
+        <div class="filtro-group">
+          <label>Busca:</label>
+          <input
+            type="text"
+            [(ngModel)]="filtros.busca"
+            (input)="aplicarFiltros()"
+            placeholder="Nome ou email..."
+            class="filtro-input"
+          />
+        </div>
+      </div>
+
+      <div class="actions">
+        <button
+          (mousedown)="prepararAberturaNovoUsuario()"
+          (click)="abrirNovoUsuario($event)"
+          class="btn btn-primary"
+        >
+          + Novo Usuário
+        </button>
+      </div>
+
+      <div class="tabela-container">
+        <table class="usuarios-table" *ngIf="!loading()">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Email</th>
+              <th>Perfil</th>
+              <th>Status</th>
+              <th>Criado em</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let usuario of usuariosFiltrados">
+              <td>{{ usuario.nome }}</td>
+              <td>{{ usuario.email }}</td>
+              <td>
+                <span
+                  *ngIf="exibirPerfilUsuario(usuario.perfil); else semPerfil"
+                  class="badge"
+                  [ngClass]="classeBadgePerfil(usuario.perfil)"
+                >
+                  {{ exibirPerfilUsuario(usuario.perfil) }}
+                </span>
+                <ng-template #semPerfil> - </ng-template>
+              </td>
+              <td>
+                <span [ngClass]="usuario.ativo ? 'status-ativo' : 'status-inativo'">
+                  {{ usuario.ativo ? 'Ativo' : 'Inativo' }}
+                </span>
+              </td>
+              <td>{{ usuario.criadoEm ? (usuario.criadoEm | date: 'short') : '-' }}</td>
+              <td class="acoes">
+                <button (click)="abrirEdicaoUsuario(usuario)" class="btn-acao editar" title="Editar">✎</button>
+                <button (click)="excluirUsuario(usuario.id_user)" class="btn-acao deletar" [disabled]="excluindo()" title="Excluir">🗑</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="loading()" class="loading">Carregando usuários...</div>
+        <div *ngIf="!loading() && errorMessage()" class="empty">{{ errorMessage() }}</div>
+        <div *ngIf="!loading() && usuariosFiltrados.length === 0" class="empty">Nenhum usuário encontrado</div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="mostraModal()" class="modal" (click)="fecharModal()">
+    <div class="modal-content modal-usuario-wide" (click)="$event.stopPropagation()">
+      <h2>{{ formulario().isEdicao ? 'Editar Usuário' : 'Novo Usuário' }}</h2>
+
+      <div class="form-group">
+        <label>Nome</label>
+        <input
+          type="text"
+          class="usuario-form-input"
+          [ngModel]="formulario().nome"
+          (ngModelChange)="atualizarCampo('nome', $event); validarFormulario()"
+          placeholder="Nome"
+        />
+        <div class="field-error" *ngIf="errosFormulario().nome">{{ errosFormulario().nome }}</div>
+      </div>
+
+      <div class="form-group">
+        <label>E-mail</label>
+        <input
+          type="email"
+          class="usuario-form-input"
+          [ngModel]="formulario().email"
+          (ngModelChange)="atualizarCampo('email', $event); validarFormulario()"
+          placeholder="E-mail"
+        />
+        <div class="field-error" *ngIf="errosFormulario().email">{{ errosFormulario().email }}</div>
+      </div>
+
+      <div class="form-group">
+        <label>Perfil</label>
+        <select
+          class="usuario-form-input"
+          [ngModel]="formulario().perfil"
+          (ngModelChange)="onPerfilChange($event)"
+        >
+          <option value="" disabled>Selecione o perfil</option>
+          <option *ngFor="let p of perfisCadastro" [value]="p">{{ labelPerfil(p) }}</option>
+        </select>
+      </div>
+
+      <ng-container *ngIf="!formulario().isEdicao">
+        <div class="form-group">
+          <label>Senha</label>
+          <div class="usuario-password-wrapper">
+            <input
+              [type]="senhaVisivel() ? 'text' : 'password'"
+              class="usuario-form-input"
+              [ngModel]="formulario().password"
+              (ngModelChange)="atualizarCampo('password', $event); validarFormulario()"
+              placeholder="Senha"
+            />
+            <button
+              type="button"
+              class="usuario-btn-show-password"
+              (click)="senhaVisivel.set(!senhaVisivel())"
+            >
+              {{ senhaVisivel() ? '👁️‍🗨️' : '🔒' }}
+            </button>
+          </div>
+          <div class="usuario-requisitos-senha">
+            <div class="usuario-requisito" [class.atendido]="getSenhaRequisitos().tamanho">
+              <span class="usuario-check">{{ getSenhaRequisitos().tamanho ? '✓' : '○' }}</span>
+              Pelo menos 8 caracteres
+            </div>
+            <div class="usuario-requisito" [class.atendido]="getSenhaRequisitos().maiuscula">
+              <span class="usuario-check">{{ getSenhaRequisitos().maiuscula ? '✓' : '○' }}</span>
+              Letras maiúsculas
+            </div>
+            <div class="usuario-requisito" [class.atendido]="getSenhaRequisitos().minuscula">
+              <span class="usuario-check">{{ getSenhaRequisitos().minuscula ? '✓' : '○' }}</span>
+              Letras minúsculas
+            </div>
+            <div class="usuario-requisito" [class.atendido]="getSenhaRequisitos().numero">
+              <span class="usuario-check">{{ getSenhaRequisitos().numero ? '✓' : '○' }}</span>
+              Números
+            </div>
+            <div class="usuario-requisito" [class.atendido]="getSenhaRequisitos().especial">
+              <span class="usuario-check">{{ getSenhaRequisitos().especial ? '✓' : '○' }}</span>
+              Ao menos 1 caractere especial
+            </div>
+          </div>
+          <div class="field-error" *ngIf="errosFormulario().password">{{ errosFormulario().password }}</div>
+        </div>
+
+        <div class="form-group">
+          <label>Confirmação</label>
+          <div class="usuario-password-wrapper">
+            <input
+              [type]="confirmacaoVisivel() ? 'text' : 'password'"
+              class="usuario-form-input"
+              [ngModel]="formulario().confirmacaoSenha"
+              (ngModelChange)="atualizarCampo('confirmacaoSenha', $event); validarFormulario()"
+              placeholder="Confirmação"
+            />
+            <button
+              type="button"
+              class="usuario-btn-show-password"
+              (click)="confirmacaoVisivel.set(!confirmacaoVisivel())"
+            >
+              {{ confirmacaoVisivel() ? '👁️‍🗨️' : '🔒' }}
+            </button>
+          </div>
+          <div class="field-error" *ngIf="errosFormulario().confirmacaoSenha">{{ errosFormulario().confirmacaoSenha }}</div>
+        </div>
+
+        <label class="usuario-checkbox-label">
+          <input type="checkbox" [ngModel]="formulario().termosSenha" (ngModelChange)="atualizarCampo('termosSenha', $event); validarFormulario()" />
+          Concordo com os
+          <span class="usuario-termos-links">
+            <a href="#">Termos de Serviço</a>
+            e a
+            <a href="#">Política de Privacidade</a>
+          </span>
+        </label>
+        <div class="field-error" *ngIf="errosFormulario().termos">{{ errosFormulario().termos }}</div>
+      </ng-container>
+
+      <div class="modal-actions">
+        <button (click)="salvarUsuario()" class="btn btn-primary" [disabled]="salvando()">Salvar</button>
+        <button (click)="fecharModal()" class="btn btn-secondary">Sair</button>
+      </div>
+    </div>
+  </div>
+</app-page-layout>

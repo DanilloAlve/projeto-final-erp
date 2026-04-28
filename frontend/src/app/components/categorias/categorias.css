@@ -1,0 +1,160 @@
+.categorias-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.categorias-header h1 {
+  margin: 0;
+  color: #0a3d5c;
+  font-size: 32px;
+}
+
+.btn-novo {
+  padding: 10px 20px;
+  background: #00a86b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-novo:hover {
+  background: #008c57;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 168, 107, 0.2);
+}
+
+.loading-message,
+.error-message {
+  margin: 16px 0;
+}
+
+.error-message {
+  color: #b91c1c;
+}
+
+.categorias-table {
+  width: 100%;
+  background: white;
+  border-collapse: collapse;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.categorias-table thead {
+  background: #f5f7fa;
+  border-bottom: 2px solid #e0e4e8;
+}
+
+.categorias-table th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.categorias-table td {
+  padding: 16px;
+  border-bottom: 1px solid #e0e4e8;
+  color: #333;
+  font-size: 14px;
+}
+
+.categorias-table tbody tr:hover {
+  background: #f9f9f9;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background: #e8f5e9;
+  color: #00a86b;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-badge.inativo {
+  background: #ffebee;
+  color: #dc2626;
+}
+
+.acoes {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-acao {
+  padding: 6px 10px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.btn-acao.editar:hover {
+  background: #e3f2fd;
+  border-color: #0073aa;
+  color: #0073aa;
+}
+
+.btn-acao.deletar:hover {
+  background: #ffebee;
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.empty-state {
+  text-align: center;
+  color: #6b7280;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.form-group.full {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 768px) {
+  .categorias-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .categorias-header h1 {
+    font-size: 24px;
+  }
+
+  .btn-novo {
+    width: 100%;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .categorias-table {
+    font-size: 12px;
+  }
+
+  .categorias-table th,
+  .categorias-table td {
+    padding: 12px 8px;
+  }
+}

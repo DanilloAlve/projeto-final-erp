@@ -1,0 +1,175 @@
+<app-page-layout currentPage="financeiro">
+  <div class="page-header financeiro-page-header">
+    <h1>Financeiro</h1>
+    <button type="button" class="btn-novo" (click)="abrirModalNovo()">+ Novo lançamento</button>
+  </div>
+
+  <div *ngIf="loading()" class="loading-message">Carregando lançamentos...</div>
+  <div *ngIf="!loading() && errorMessage()" class="error-message">{{ errorMessage() }}</div>
+
+  <div class="financeiro-filtros" *ngIf="!loading() && !errorMessage()">
+    <input
+      type="text"
+      class="input-busca"
+      placeholder="Buscar por descrição..."
+      [(ngModel)]="filtroBusca"
+      name="filtroBusca"
+    />
+    <select class="select-filtro" [(ngModel)]="filtroTipo" name="filtroTipo">
+      <option value="todos">Todos os tipos</option>
+      <option value="receita">Receitas</option>
+      <option value="despesa">Despesas</option>
+    </select>
+    <select class="select-filtro" [(ngModel)]="filtroStatus" name="filtroStatus">
+      <option value="todos">Todos os status</option>
+      <option value="pendente">Pendente</option>
+      <option value="pago">Pago</option>
+      <option value="cancelado">Cancelado</option>
+    </select>
+  </div>
+
+  <table class="financeiro-table" *ngIf="!loading() && !errorMessage() && registros.length > 0">
+    <thead>
+      <tr>
+        <th>Tipo</th>
+        <th>Descrição</th>
+        <th>Valor</th>
+        <th>Status</th>
+        <th>Vencimento</th>
+        <th>Pagamento</th>
+        <th>Cadastro</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let r of registrosFiltrados">
+        <td>
+          <span class="tipo-badge" [class.receita]="r.tipo === 'receita'" [class.despesa]="r.tipo === 'despesa'">
+            {{ labelTipo(r.tipo) }}
+          </span>
+        </td>
+        <td><strong>{{ r.descricao }}</strong></td>
+        <td>{{ formatValor(r.valor) }}</td>
+        <td>
+          <span
+            class="status-badge"
+            [class.pendente]="r.status === 'pendente'"
+            [class.pago]="r.status === 'pago'"
+            [class.cancelado]="r.status === 'cancelado'"
+          >
+            {{ labelStatus(r.status) }}
+          </span>
+        </td>
+        <td>{{ formatDiaMesAno(r.data_vencimento) }}</td>
+        <td>{{ r.data_pagamento ? (r.data_pagamento | date: 'dd/MM/yyyy HH:mm') : '-' }}</td>
+        <td>{{ r.created_at ? (r.created_at | date: 'dd/MM/yyyy') : '-' }}</td>
+        <td class="acoes">
+          <button
+            type="button"
+            *ngIf="r.status === 'pendente'"
+            class="btn-acao pagar"
+            [disabled]="pagando()"
+            (click)="marcarComoPago(r)"
+            title="Marcar como pago"
+          >
+            Pagar
+          </button>
+          <button type="button" (click)="abrirModalEditar(r)" class="btn-acao editar" title="Editar">✎</button>
+          <button type="button" (click)="excluir(r)" class="btn-acao deletar" [disabled]="excluindo()" title="Excluir">
+            🗑
+          </button>
+        </td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr class="financeiro-resumo">
+        <td colspan="2"><strong>Total receitas (filtro)</strong></td>
+        <td><strong>{{ formatValor(totalReceitasFiltrado) }}</strong></td>
+        <td colspan="5"></td>
+      </tr>
+      <tr class="financeiro-resumo">
+        <td colspan="2"><strong>Total despesas (filtro)</strong></td>
+        <td><strong>{{ formatValor(totalDespesasFiltrado) }}</strong></td>
+        <td colspan="5"></td>
+      </tr>
+      <tr class="financeiro-resumo saldo">
+        <td colspan="2"><strong>Saldo (filtro)</strong></td>
+        <td><strong>{{ formatValor(saldoFiltrado) }}</strong></td>
+        <td colspan="5"></td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <p *ngIf="!loading() && !errorMessage() && registros.length === 0" class="financeiro-vazio">
+    Nenhum lançamento cadastrado. Clique em “Novo lançamento” para começar.
+  </p>
+  <p *ngIf="!loading() && !errorMessage() && registros.length > 0 && registrosFiltrados.length === 0" class="financeiro-vazio">
+    Nenhum lançamento encontrado com os filtros atuais.
+  </p>
+
+  <div *ngIf="mostraModal()" class="modal" (click)="fecharModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h2>{{ formulario().id ? 'Editar lançamento' : 'Novo lançamento' }}</h2>
+
+      <div class="row g-3">
+        <div class="form-group col-12 col-md-6">
+          <label>Tipo</label>
+          <select
+            class="form-select"
+            [ngModel]="formulario().tipo"
+            (ngModelChange)="onCampoSelect('tipo', $event)"
+          >
+            <option value="receita">Receita</option>
+            <option value="despesa">Despesa</option>
+          </select>
+        </div>
+
+        <div class="form-group col-12 col-md-6">
+          <label>Status</label>
+          <select
+            class="form-select"
+            [ngModel]="formulario().status"
+            (ngModelChange)="onCampoSelect('status', $event)"
+          >
+            <option value="pendente">Pendente</option>
+            <option value="pago">Pago</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+
+        <div class="form-group col-12">
+          <label>Descrição</label>
+          <input
+            class="form-control"
+            type="text"
+            [ngModel]="formulario().descricao"
+            (ngModelChange)="onCampoTexto('descricao', $event)"
+          />
+        </div>
+
+        <div class="form-group col-12 col-md-6">
+          <label>Valor</label>
+          <app-currency-input
+            [ngModel]="formulario().valor"
+            (ngModelChange)="onValorChange($event)"
+          ></app-currency-input>
+        </div>
+
+        <div class="form-group col-12 col-md-6">
+          <label>Data de vencimento</label>
+          <input
+            class="form-control"
+            type="date"
+            [ngModel]="formulario().data_vencimento"
+            (ngModelChange)="onDataVencimento($event)"
+          />
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-primary" (click)="salvar()" [disabled]="salvando()">Salvar</button>
+        <button type="button" class="btn btn-secondary" (click)="fecharModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</app-page-layout>

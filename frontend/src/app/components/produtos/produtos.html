@@ -1,0 +1,142 @@
+<app-page-layout currentPage="produtos">
+    <div class="page-header produtos-header">
+      <h1>Gerenciamento de Produtos</h1>
+      <button class="btn-novo" (click)="abrirModalNovo()">+ Novo Produto</button>
+    </div>
+
+    <div *ngIf="loading()" class="loading-message">
+      Carregando produtos...
+    </div>
+    <div *ngIf="!loading() && errorMessage()" class="error-message">
+      {{ errorMessage() }}
+    </div>
+
+    <div class="produtos-filtros">
+      <input
+        type="text"
+        placeholder="Buscar produto..."
+        class="input-busca"
+        [ngModel]="buscaNome()"
+        (ngModelChange)="onBuscaNomeChange($event)"
+      />
+      <select class="select-filtro" [ngModel]="filtroEstoque()" (ngModelChange)="onFiltroEstoqueChange($event)">
+        <option value="todos">Todos</option>
+        <option value="em-estoque">Em Estoque</option>
+        <option value="fora-de-estoque">Fora de Estoque</option>
+      </select>
+    </div>
+
+    <table class="produtos-table">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Descrição</th>
+          <th>Preço (unitário)</th>
+          <th>Estoque</th>
+          <th>Data de entrada</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let produto of produtos">
+          <td><strong>{{ produto.nome }}</strong></td>
+          <td>{{ produto.descricao }}</td>
+          <td>{{ produto.preco | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+          <td>
+            <span class="estoque-badge" [class.baixo]="produto.estoque_atual < produto.estoque_minimo">
+              {{ produto.estoque_atual }}
+            </span>
+          </td>
+          <td>{{ produto.created_at ? (produto.created_at | date: 'dd/MM/yyyy') : '-' }}</td>
+          <td class="acoes">
+            <button (click)="abrirModalEditar(produto)" class="btn-acao editar">✎</button>
+            <button (click)="excluirProduto(produto)" class="btn-acao deletar" [disabled]="excluindo()">🗑</button>
+          </td>
+        </tr>
+        <tr *ngIf="!loading() && produtos.length === 0">
+          <td colspan="6" class="sem-resultados">Nenhum produto encontrado.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="paginacao-container" *ngIf="!loading() && totalItens() > 0">
+      <span class="paginacao-info">
+        Exibindo {{ inicioRegistros }}-{{ fimRegistros }} de {{ totalItens() }} produtos
+      </span>
+      <div class="paginacao-botoes">
+        <button class="btn-paginacao" (click)="irParaPaginaAnterior()" [disabled]="paginaAtual() === 1 || loading()">
+          Anterior
+        </button>
+        <span class="paginacao-pagina">Página {{ paginaAtual() }} de {{ totalPaginas() }}</span>
+        <button class="btn-paginacao" (click)="irParaProximaPagina()" [disabled]="paginaAtual() === totalPaginas() || loading()">
+          Próxima
+        </button>
+      </div>
+    </div>
+
+  <div *ngIf="mostraModal()" class="modal" (click)="fecharModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h2>{{ formulario().id ? 'Editar Produto' : 'Novo Produto' }}</h2>
+
+      <div class="row g-3">
+        <div class="form-group col-6">
+          <label>Nome</label>
+          <input class="form-control" type="text" [ngModel]="formulario().nome" (ngModelChange)="onCampoTextoChange('nome', $event)" />
+        </div>
+
+        <div class="form-group col-6">
+          <label>Código</label>
+          <input class="form-control" type="text" [ngModel]="formulario().codigo" (ngModelChange)="onCampoTextoChange('codigo', $event)" />
+        </div>
+
+        <div class="form-group col-12">
+          <label>Descrição</label>
+          <input class="form-control" type="text" [ngModel]="formulario().descricao" (ngModelChange)="onCampoTextoChange('descricao', $event)" />
+        </div>
+
+        <div class="form-group col-3">
+          <label>Preço</label>
+          <app-currency-input [ngModel]="formulario().preco" (ngModelChange)="onCampoNumeroChange('preco', $event)"></app-currency-input>
+        </div>
+
+        <div class="form-group col-3">
+          <label>Estoque atual</label>
+          <input class="form-control" type="number" min="0" step="1" [ngModel]="formulario().estoque_atual" (ngModelChange)="onCampoNumeroChange('estoque_atual', $event)" />
+        </div>
+
+        <div class="form-group col-3">
+          <label>Estoque mínimo</label>
+          <input class="form-control" type="number" min="0" step="1" [ngModel]="formulario().estoque_minimo" (ngModelChange)="onCampoNumeroChange('estoque_minimo', $event)" />
+        </div>
+
+        <div class="form-group col-3">
+          <label>Estoque máximo</label>
+          <input class="form-control" type="number" min="0" step="1" [ngModel]="formulario().estoque_maximo" (ngModelChange)="onCampoNumeroChange('estoque_maximo', $event)" />
+        </div>
+
+        <div class="form-group col-12 col-md-8">
+          <label>Categoria</label>
+          <select class="form-select" [ngModel]="formulario().categoriaId" (ngModelChange)="onCampoTextoChange('categoriaId', $event)">
+            <option value="">Sem categoria</option>
+            <option *ngFor="let categoria of categorias" [value]="categoria.id">
+              {{ categoria.nome }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group col-12 col-md-4">
+          <label>Ativo</label>
+          <select class="form-select" [ngModel]="formulario().ativo ? 'true' : 'false'" (ngModelChange)="onAtivoChange($event)">
+            <option value="true">Sim</option>
+            <option value="false">Não</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-primary" (click)="salvarProduto()" [disabled]="salvando()">Salvar</button>
+        <button class="btn btn-secondary" (click)="fecharModal()">Sair</button>
+      </div>
+    </div>
+  </div>
+</app-page-layout>

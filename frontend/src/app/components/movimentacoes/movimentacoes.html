@@ -1,0 +1,63 @@
+<app-page-layout currentPage="movimentacoes">
+    <div class="page-header">
+      <h1>Movimentações</h1>
+    </div>
+
+    <div class="page-card">
+      <div *ngIf="loading()" class="loading-message">Carregando...</div>
+      <div *ngIf="!loading() && errorMessage()" class="error-message">{{ errorMessage() }}</div>
+
+      <div class="mov-historico">
+        <h2>Histórico</h2>
+
+        <div class="filtros">
+          <input type="date" [ngModel]="filtroDataInicio()" (ngModelChange)="filtroDataInicio.set($event)" />
+          <input type="date" [ngModel]="filtroDataFim()" (ngModelChange)="filtroDataFim.set($event)" />
+
+          <select [ngModel]="filtroTipo()" (ngModelChange)="filtroTipo.set($event)">
+            <option [ngValue]="'todos'">Todos</option>
+            <option [ngValue]="'entrada'">ENTRADA</option>
+            <option [ngValue]="'saida'">SAÍDA</option>
+          </select>
+
+          <input
+            type="text"
+            placeholder="Filtrar por peça (nome/código)"
+            [ngModel]="filtroBuscaPeca()"
+            (ngModelChange)="filtroBuscaPeca.set($event)"
+          />
+          <input
+            type="text"
+            placeholder="Filtrar por usuário"
+            [ngModel]="filtroUsuario()"
+            (ngModelChange)="filtroUsuario.set($event)"
+          />
+        </div>
+
+        <table class="mov-table">
+          <thead>
+            <tr>
+              <th>Data/Hora</th>
+              <th>Peça</th>
+              <th>Tipo</th>
+              <th>Motivo</th>
+              <th>Qtd</th>
+              <th>Usuário</th>
+              <th>Obs.</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let m of movimentacoesFiltradas">
+              <td>{{ formatDateTime(m.created_at) }}</td>
+              <td>{{ m.produto.codigo }} - {{ m.produto.nome }}</td>
+              <td>{{ m.tipo === 'entrada' ? 'ENTRADA' : 'SAÍDA' }}</td>
+              <td>{{ m.motivoLabel }}</td>
+              <td>{{ m.tipo === 'entrada' ? '+' : '-' }}{{ m.quantidade }}</td>
+              <td>{{ m.usuario.nome }}</td>
+              <td>{{ m.observacao || '-' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+</app-page-layout>

@@ -1,0 +1,75 @@
+<app-page-layout currentPage="categorias">
+  <div class="page-header categorias-header">
+    <h1>Gerenciamento de Categorias</h1>
+    <button class="btn-novo" (click)="abrirModalNovo()">+ Nova Categoria</button>
+  </div>
+
+  <div *ngIf="loading()" class="loading-message">
+    Carregando categorias...
+  </div>
+  <div *ngIf="!loading() && errorMessage()" class="error-message">
+    {{ errorMessage() }}
+  </div>
+
+  <table class="categorias-table">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Descrição</th>
+        <th>Status</th>
+        <th>Data de cadastro</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let categoria of categorias">
+        <td><strong>{{ categoria.nome }}</strong></td>
+        <td>{{ categoria.descricao || '-' }}</td>
+        <td>
+          <span class="status-badge" [class.inativo]="!categoria.status">
+            {{ categoria.status ? 'ATIVO' : 'INATIVO' }}
+          </span>
+        </td>
+        <td>{{ categoria.created_at ? (categoria.created_at | date: 'dd/MM/yyyy') : '-' }}</td>
+        <td class="acoes">
+          <button (click)="abrirModalEditar(categoria)" class="btn-acao editar">✎</button>
+          <button (click)="excluirCategoria(categoria)" class="btn-acao deletar" [disabled]="excluindo()">🗑</button>
+        </td>
+      </tr>
+      <tr *ngIf="!loading() && !categorias.length">
+        <td colspan="5" class="empty-state">Nenhuma categoria cadastrada.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="mostraModal()" class="modal" (click)="fecharModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h2>{{ formulario().id ? 'Editar Categoria' : 'Nova Categoria' }}</h2>
+
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Nome</label>
+          <input type="text" [ngModel]="formulario().nome" (ngModelChange)="onCampoTextoChange('nome', $event)" />
+        </div>
+
+        <div class="form-group full">
+          <label>Descrição</label>
+          <input type="text" [ngModel]="formulario().descricao" (ngModelChange)="onCampoTextoChange('descricao', $event)" />
+        </div>
+
+        <div class="form-group">
+          <label>Status</label>
+          <select [ngModel]="formulario().status ? 'true' : 'false'" (ngModelChange)="onStatusChange($event)">
+            <option value="true">ATIVO</option>
+            <option value="false">INATIVO</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-primary" (click)="salvarCategoria()" [disabled]="salvando()">Salvar</button>
+        <button class="btn btn-secondary" (click)="fecharModal()">Sair</button>
+      </div>
+    </div>
+  </div>
+</app-page-layout>
