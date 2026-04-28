@@ -24,6 +24,13 @@ export class MovimentacaoEstoqueService {
         throw new AppError("Quantidade deve ser maior que zero", 400);
       }
 
+      if (data.motivo === MotivoMovimentacao.VENDA) {
+        throw new AppError(
+          "A Movimentação com tipo VENDA só pode ser realizada pelo módulo de Vendas",
+          422
+        );
+      }
+
       const produto = await produtoRepo.findOne({
         where: { id_prod: data.produtoId },
         lock: { mode: "pessimistic_write" }, //evita concorrência

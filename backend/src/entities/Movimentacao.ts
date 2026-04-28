@@ -19,6 +19,8 @@ export enum MotivoMovimentacao {
   COMPRA = "compra",
   AJUSTE = "ajuste",
   DEVOLUCAO = "devolucao",
+  CONSUMO = "consumo",
+  FABRICACAO = "fabricacao",
 }
 
 @Entity("movimentacao_estoque")

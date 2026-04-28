@@ -383,7 +383,7 @@ export class Pedidos {
   }
 
   podeCancelarPedido(statusAtual: PedidoStatus): boolean {
-    return statusAtual === 'aberto' || statusAtual === 'pago';
+    return statusAtual === 'aberto';
   }
 
   async pagarPedido(p: PedidoView) {
@@ -444,7 +444,11 @@ export class Pedidos {
   }
 
   podeAlterarStatus(statusAtual: PedidoStatus): boolean {
-    return statusAtual !== 'cancelado';
+    return statusAtual === 'aberto';
+  }
+
+  podeExcluirPedido(statusAtual: PedidoStatus): boolean {
+    return statusAtual !== 'pago';
   }
 
   mensagemListaVazia(): string {

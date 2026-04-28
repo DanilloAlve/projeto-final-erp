@@ -5,6 +5,11 @@ import { Cliente } from "../entities/Cliente.js";
 import { Usuario } from "../entities/Usuario.js";
 import { ItemPedido } from "../entities/ItemPedido.js";
 import { Produto } from "../entities/Produto.js";
+import {
+  MovimentacaoEstoque,
+  MotivoMovimentacao,
+  TipoMovimentacao,
+} from "../entities/Movimentacao.js";
 import { AppError } from "../errors/AppErrors.js";
 
 /** Relações carregadas nas respostas de pedido (itens com produto para exibição). */
@@ -114,6 +119,29 @@ export class PedidoService {
     }
   }
 
+  private async registrarMovimentacoesVenda(
+    em: EntityManager,
+    itens: ItemPedido[],
+    usuario: Usuario,
+  ): Promise<void> {
+    const movimentacaoRepo = em.getRepository(MovimentacaoEstoque);
+    const registros = itens
+      .filter((line) => line.produto && line.quantidade > 0)
+      .map((line) =>
+        movimentacaoRepo.create({
+          produto: line.produto,
+          usuario,
+          tipo: TipoMovimentacao.SAIDA,
+          motivo: MotivoMovimentacao.VENDA,
+          quantidade: line.quantidade,
+        }),
+      );
+
+    if (registros.length > 0) {
+      await movimentacaoRepo.save(registros);
+    }
+  }
+
   async create(data: any) {
     return await this.dataSource.transaction(async (em) => {
       const clienteRepo = em.getRepository(Cliente);
@@ -147,6 +175,7 @@ export class PedidoService {
         });
         if (fullItens.length > 0) {
           await this.baixarEstoqueItensPedido(em, fullItens);
+          await this.registrarMovimentacoesVenda(em, fullItens, usuario);
         }
       }
 
@@ -188,7 +217,7 @@ export class PedidoService {
       const pedidoRepo = em.getRepository(Pedido);
       const pedido = await pedidoRepo.findOne({
         where: { id },
-        relations: { itens: { produto: true } },
+        relations: { itens: { produto: true }, usuario: true },
         lock: { mode: "pessimistic_write" },
       });
       if (!pedido) throw new AppError("Pedido não encontrado", 404);
@@ -207,10 +236,13 @@ export class PedidoService {
         throw new AppError("Pedido cancelado não pode ter status alterado", 400);
       }
 
+      if (anterior === "pago" && status !== "pago") {
+        throw new AppError("Pedido pago não pode ser editado", 400);
+      }
+
       if (anterior === "aberto" && status === "pago") {
         await this.baixarEstoqueItensPedido(em, pedido.itens ?? []);
-      } else if (anterior === "pago" && (status === "aberto" || status === "cancelado")) {
-        await this.restaurarEstoqueItensPedido(em, pedido.itens ?? []);
+        await this.registrarMovimentacoesVenda(em, pedido.itens ?? [], pedido.usuario);
       }
 
       pedido.status = status;
@@ -236,7 +268,7 @@ export class PedidoService {
       if (!pedido) throw new AppError("Pedido não encontrado", 404);
 
       if (pedido.status === "pago") {
-        await this.restaurarEstoqueItensPedido(em, pedido.itens ?? []);
+        throw new AppError("Pedido pago não pode ser removido", 400);
       }
 
       await pedidoRepo.remove(pedido);
