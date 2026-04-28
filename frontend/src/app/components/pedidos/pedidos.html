@@ -23,6 +23,7 @@
   <table class="pedidos-table">
     <thead>
       <tr>
+        <th>Código</th>
         <th>Cliente</th>
         <th>Total</th>
         <th>Status</th>
@@ -34,9 +35,10 @@
     <tbody>
       <ng-container *ngIf="!loading() && !errorMessage()">
         <tr *ngIf="pedidosFiltrados.length === 0">
-          <td colspan="6" class="pedidos-vazio">{{ mensagemListaVazia() }}</td>
+          <td colspan="7" class="pedidos-vazio">{{ mensagemListaVazia() }}</td>
         </tr>
         <tr *ngFor="let pedido of pedidosFiltrados">
+          <td><strong>{{ pedido.codigo }}</strong></td>
           <td><strong>{{ pedido.clienteNome }}</strong></td>
           <td>{{ pedido.total | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
           <td>
@@ -46,7 +48,28 @@
           <td>{{ pedido.created_at ? (pedido.created_at | date: 'dd/MM/yyyy HH:mm') : '-' }}</td>
           <td class="acoes">
             <button type="button" (click)="abrirModalDetalhe(pedido)" class="btn-acao editar" title="Detalhes">✎</button>
-            <button type="button" (click)="excluirPedido(pedido)" class="btn-acao deletar" [disabled]="excluindo()" title="Excluir">🗑</button>
+            <button
+              *ngIf="podePagarPedido(pedido.status)"
+              type="button"
+              (click)="pagarPedido(pedido)"
+              class="btn-acao pagar btn-acao-icone"
+              [disabled]="atualizandoStatus()"
+              title="Marcar como pago"
+              aria-label="Marcar como pago"
+            >
+              $
+            </button>
+            <button
+              *ngIf="podeCancelarPedido(pedido.status)"
+              type="button"
+              (click)="cancelarPedido(pedido)"
+              class="btn-acao cancelar btn-acao-icone"
+              [disabled]="atualizandoStatus()"
+              title="Cancelar pedido"
+              aria-label="Cancelar pedido"
+            >
+              ✕
+            </button>
           </td>
         </tr>
       </ng-container>

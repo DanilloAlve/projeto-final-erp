@@ -13,6 +13,7 @@ import authRoutes from "./routes/authRoutes.js";
 import movimentacaoRoutes from "./routes/movimentacaoRoutes.js";
 import { dashboardRoutes } from "./routes/dashboardRoutes.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
+import { PedidoService } from "./services/PedidoService.js";
 
 
 
@@ -61,8 +62,10 @@ app.use(errorHandler);
 
 appDataSource
     .initialize()
-    .then(() => {
+    .then(async () => {
         console.log("Banco de dados conectado!");
+        const pedidoService = new PedidoService(appDataSource);
+        await pedidoService.preencherCodigosPedidosExistentes();
         app.listen(PORT, () => {
             console.log(`Servidor rodando na porta ${PORT}`);
         });

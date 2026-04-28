@@ -1,0 +1,61 @@
+<section class="estoque-status-card" aria-labelledby="estoque-status-heading">
+  <div class="estoque-status-card__head">
+    <h2 id="estoque-status-heading" class="estoque-status-card__title">Status do Estoque</h2>
+    <a routerLink="/produtos" class="estoque-status-card__link">Ver todos</a>
+  </div>
+
+  @if (loading) {
+    <div class="estoque-status-skeleton" aria-hidden="true"></div>
+  } @else if (linhasStatusEstoque.length === 0) {
+    <p class="estoque-status-empty">Nenhum produto ativo para exibir.</p>
+  } @else {
+    <div class="estoque-table-wrap">
+      <table class="estoque-table">
+        <thead>
+          <tr>
+            <th scope="col">Produto</th>
+            <th scope="col">Código</th>
+            <th scope="col">Categoria</th>
+            <th scope="col">Estoque total</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of linhasStatusEstoque; track row.id) {
+            <tr>
+              <td>
+                <div class="estoque-prod-cell">
+                  <span [class]="iconWrapClass(row.iconTintIndex)" aria-hidden="true">
+                    <img [src]="packageIconSrc" alt="" width="22" height="22" />
+                  </span>
+                  <span class="estoque-prod-text">
+                    <span class="estoque-prod-name">{{ row.nome }}</span>
+                    <span class="estoque-prod-sku">{{ row.skuLabel }}</span>
+                  </span>
+                </div>
+              </td>
+              <td class="estoque-table-mono">{{ row.codigo }}</td>
+              <td>{{ row.categoriaNome }}</td>
+              <td>
+                <div class="estoque-qty-bar">
+                  <span class="estoque-qty-label">
+                    {{ row.estoqueAtual }}
+                    {{ row.estoqueAtual === 1 ? 'unidade' : 'unidades' }}
+                  </span>
+                  <div class="estoque-bar" role="progressbar" [attr.aria-valuenow]="row.barraPct" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="'Nível em relação ao máximo: ' + row.barraPct + '%'">
+                    <div class="estoque-bar__track">
+                      <div class="estoque-bar__fill" [ngClass]="barraCorClass(row.status)" [style.width.%]="row.barraPct"></div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="estoque-badge" [class]="badgeClass(row.status)">{{ labelStatus(row.status) }}</span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

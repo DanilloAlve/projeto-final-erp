@@ -1,4 +1,4 @@
-import type { DataSource, Repository } from "typeorm";
+import { Not, type DataSource, type Repository } from "typeorm";
 import { Usuario } from "../entities/Usuario.js";
 import { hash } from "bcryptjs";
 import type { CreateUsuarioDTO, UpdateUsuarioDTO } from "../dtos/UsuarioDTO.js";
@@ -29,6 +29,20 @@ export class UsuarioService {
     
     async getByNome(nome: string){
         return await this.userRepo.findOneBy({nome: nome});        
+    }
+
+    async getByEmailExcluindoId(email: string, idExcluir: string) {
+        return await this.userRepo.findOneBy({
+            email,
+            id_user: Not(idExcluir),
+        });
+    }
+
+    async getByNomeExcluindoId(nome: string, idExcluir: string) {
+        return await this.userRepo.findOneBy({
+            nome,
+            id_user: Not(idExcluir),
+        });
     }
 
     private sanitizeNome(nome: string) {
@@ -74,16 +88,16 @@ export class UsuarioService {
         const nomeAtualizado = userUpdate.nome ? this.sanitizeNome(userUpdate.nome) : undefined;
         const emailAtualizado = userUpdate.email ? this.sanitizeEmail(userUpdate.email) : undefined;
 
-        if (emailAtualizado && emailAtualizado !== usuario.email) {
-            const emailEmUso = await this.getByEmail(emailAtualizado);
-            if (emailEmUso && emailEmUso.id_user !== usuario.id_user) {
+        if (emailAtualizado) {
+            const emailEmUso = await this.getByEmailExcluindoId(emailAtualizado, usuario.id_user);
+            if (emailEmUso) {
                 throw new AppError("Email ja cadastrado!", 409);
             }
         }
 
-        if (nomeAtualizado && nomeAtualizado !== usuario.nome) {
-            const nomeEmUso = await this.getByNome(nomeAtualizado);
-            if (nomeEmUso && nomeEmUso.id_user !== usuario.id_user) {
+        if (nomeAtualizado) {
+            const nomeEmUso = await this.getByNomeExcluindoId(nomeAtualizado, usuario.id_user);
+            if (nomeEmUso) {
                 throw new AppError("Nome de usuario ja cadastrado!", 409);
             }
         }

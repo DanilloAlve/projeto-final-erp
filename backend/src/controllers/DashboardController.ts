@@ -23,4 +23,14 @@ export class DashboardController {
       return res.status(500).json({ message: "Erro ao carregar gráficos do dashboard" });
     }
   }
+
+  async getHistoricosRecentes(_req: Request, res: Response) {
+    try {
+      const historicos = await this.dashboardService.getHistoricosRecentes(5);
+      return res.json(historicos);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Erro ao carregar historicos recentes do dashboard" });
+    }
+  }
 }

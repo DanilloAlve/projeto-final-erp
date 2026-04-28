@@ -11,5 +11,6 @@ const controller = new DashboardController(service);
 
 router.get("/resumo", ensureAuth, controller.getResumo.bind(controller));
 router.get("/graficos", ensureAuth, controller.getGraficos.bind(controller));
+router.get("/historicos-recentes", ensureAuth, controller.getHistoricosRecentes.bind(controller));
 
 export { router as dashboardRoutes };

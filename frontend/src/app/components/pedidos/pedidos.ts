@@ -21,6 +21,7 @@ export interface ItemPedidoView {
 
 export interface PedidoView {
   id: string;
+  codigo: string;
   clienteNome: string;
   usuarioNome: string;
   total: number;
@@ -102,6 +103,7 @@ export class Pedidos {
 
     return {
       id: String(p.id),
+      codigo: String(p.codigo ?? '----'),
       clienteNome: p.cliente?.nome ?? '—',
       usuarioNome: p.usuario?.nome ?? '—',
       total: Number(p.total ?? 0),
@@ -370,6 +372,47 @@ export class Pedidos {
       console.error('Erro ao atualizar status:', error);
       if (isHandledValidationError(error)) return;
       const message = MessageService.extractErrorMessage(error, 'Erro ao atualizar status');
+      void MessageService.error(message);
+    } finally {
+      this.atualizandoStatus.set(false);
+    }
+  }
+
+  podePagarPedido(statusAtual: PedidoStatus): boolean {
+    return statusAtual === 'aberto';
+  }
+
+  podeCancelarPedido(statusAtual: PedidoStatus): boolean {
+    return statusAtual === 'aberto' || statusAtual === 'pago';
+  }
+
+  async pagarPedido(p: PedidoView) {
+    await this.atualizarStatusPedidoLista(p, 'pago');
+  }
+
+  async cancelarPedido(p: PedidoView) {
+    await this.atualizarStatusPedidoLista(p, 'cancelado');
+  }
+
+  private async atualizarStatusPedidoLista(p: PedidoView, status: PedidoStatus) {
+    if (p.status === status) return;
+    const acao = status === 'pago' ? 'pagar' : 'cancelar';
+    const ok = await MessageService.confirmAction(`Tem certeza que deseja ${acao} este pedido?`, {
+      title: 'Confirma alteração de status',
+      confirmButtonText: status === 'pago' ? 'Pagar' : 'Cancelar pedido',
+      confirmButtonColor: status === 'pago' ? '#2e7d32' : '#dc2626',
+    });
+    if (!ok) return;
+
+    try {
+      this.atualizandoStatus.set(true);
+      await firstValueFrom(this.http.patch(`${API_URL}/pedidos/${p.id}/status`, { status }));
+      await this.carregarPedidos();
+      await MessageService.success(`Pedido ${this.labelStatus(status).toLowerCase()} com sucesso`);
+    } catch (error) {
+      console.error('Erro ao atualizar status do pedido:', error);
+      if (isHandledValidationError(error)) return;
+      const message = MessageService.extractErrorMessage(error, 'Erro ao atualizar status do pedido');
       void MessageService.error(message);
     } finally {
       this.atualizandoStatus.set(false);

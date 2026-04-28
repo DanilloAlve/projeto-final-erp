@@ -67,4 +67,26 @@ export class MessageService {
 
     return result.isConfirmed;
   }
+
+  static async confirmAction(
+    message: string,
+    options?: {
+      title?: string;
+      confirmButtonText?: string;
+      cancelButtonText?: string;
+      confirmButtonColor?: string;
+    }
+  ) {
+    const result = await Swal.fire({
+      icon: 'question',
+      title: options?.title ?? 'Confirma ação',
+      text: message,
+      showCancelButton: true,
+      confirmButtonText: options?.confirmButtonText ?? 'Confirmar',
+      cancelButtonText: options?.cancelButtonText ?? 'Cancelar',
+      confirmButtonColor: options?.confirmButtonColor ?? '#0073aa',
+    });
+
+    return result.isConfirmed;
+  }
 }

@@ -1,0 +1,31 @@
+<div class="recent-section">
+  <h2>Atividades Recentes</h2>
+  <div class="activity-list">
+    @if (loading) {
+      <div class="activity-item">
+        <div class="activity-content">
+          <p>Carregando atividades...</p>
+          <span class="activity-time">aguarde</span>
+        </div>
+      </div>
+    } @else if (historicosRecentes.length === 0) {
+      <div class="activity-item">
+        <div class="activity-content">
+          <p>Nenhum histórico recente disponível.</p>
+          <span class="activity-time">—</span>
+        </div>
+      </div>
+    } @else {
+      @for (historico of historicosRecentes; track historico.id) {
+        <div class="activity-item">
+          <div class="activity-content">
+            <p>{{ historico.acao }}</p>
+            <span class="activity-time">
+              {{ historico.referencia ? historico.referencia + ' • ' : '' }}{{ formatDataHistorico(historico.dataModificacao) }}
+            </span>
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>

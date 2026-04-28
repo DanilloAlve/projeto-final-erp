@@ -14,6 +14,9 @@ export class Pedido {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
+  @Column({ type: "varchar", length: 4, unique: true, nullable: true })
+  codigo!: string | null;
+
   @ManyToOne(() => Cliente, (cliente) => cliente.pedidos)
   cliente!: Cliente;
 

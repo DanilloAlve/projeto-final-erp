@@ -158,16 +158,44 @@
   transition: all 0.3s;
 }
 
+.btn-acao-icone {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+}
+
 .btn-acao.editar:hover {
   background: #e3f2fd;
   border-color: #0073aa;
   color: #0073aa;
 }
 
-.btn-acao.deletar:hover {
-  background: #ffebee;
+.btn-acao.pagar {
+  border-color: #2e7d32;
+  color: #2e7d32;
+}
+
+.btn-acao.pagar:hover:not(:disabled) {
+  background: #e8f5e9;
+}
+
+.btn-acao.cancelar {
   border-color: #dc2626;
   color: #dc2626;
+}
+
+.btn-acao.cancelar:hover:not(:disabled) {
+  background: #ffebee;
+}
+
+.btn-acao:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .itens-titulo {

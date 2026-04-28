@@ -1,41 +1,17 @@
 import {
   Component,
-  DestroyRef,
-  ElementRef,
-  effect,
-  inject,
   signal,
-  viewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import {
-  ArcElement,
-  BarController,
-  BarElement,
-  CategoryScale,
-  Chart,
-  DoughnutController,
-  Legend,
-  LinearScale,
-  Tooltip,
-} from 'chart.js';
-import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { API_URL } from '../../services/constants';
 import { PageLayoutComponent } from '../layout/page-layout';
-
-Chart.register(
-  BarController,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Legend,
-  ArcElement,
-  DoughnutController,
-);
+import { SummaryCardsComponent } from './sections/summary-cards/summary-cards';
+import { DashboardChartsComponent } from './sections/dashboard-charts/dashboard-charts';
+import { RecentActivitiesComponent } from './sections/recent-activities/recent-activities';
+import { StockStatusComponent } from './sections/stock-status/stock-status';
 
 type DashboardResumo = {
   vendasMesAtual: number;
@@ -47,6 +23,14 @@ type DashboardResumo = {
 type DashboardGraficos = {
   vendasPorMes: { labelMes: string; valor: number }[];
   produtosPorCategoria: { categoriaNome: string; quantidade: number }[];
+};
+
+type DashboardHistorico = {
+  id: string;
+  tabela: string;
+  acao: string;
+  referencia: string | null;
+  dataModificacao: string;
 };
 
 export type StatusEstoqueNivel = 'critico' | 'atencao' | 'estavel';
@@ -64,43 +48,39 @@ export type LinhaStatusEstoque = {
   iconTintIndex: number;
 };
 
-/**
- * Ordem: primários da UI (navy + ciano de destaque), depois tons que contrastam
- * fortemente entre si e com fundo claro (#f5f7fa / branco dos cards).
- */
-const CORES_PRIMARIAS_CONTRASTE = [
-  '#0a3d5c',
-  '#00d4ff',
-  '#1565a3',
-  '#ff5722',
-  '#ffc107',
-  '#e91e63',
-  '#00c853',
-  '#7c4dff',
-] as const;
+const DASHBOARD_TIMEZONE = "America/Manaus";
+
+function formatDateKeyInTimezone(date: Date, timeZone: string): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
+}
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, PageLayoutComponent, RouterLink],
+  imports: [
+    CommonModule,
+    PageLayoutComponent,
+    SummaryCardsComponent,
+    DashboardChartsComponent,
+    RecentActivitiesComponent,
+    StockStatusComponent,
+  ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
 export class Dashboard {
-  private readonly destroyRef = inject(DestroyRef);
-
   currentUser = signal<any>(null);
   loading = signal(true);
   errorMessage = signal('');
   resumo = signal<DashboardResumo | null>(null);
   graficos = signal<DashboardGraficos | null>(null);
+  historicosRecentes = signal<DashboardHistorico[]>([]);
   /** Até 5 produtos ativos mais recentemente atualizados */
   linhasStatusEstoque = signal<LinhaStatusEstoque[]>([]);
-
-  vendasCanvas = viewChild<ElementRef<HTMLCanvasElement>>('vendasChart');
-  produtosCanvas = viewChild<ElementRef<HTMLCanvasElement>>('produtosChart');
-
-  private chartVendas?: Chart<'bar'>;
-  private chartProdutos?: Chart<'doughnut'>;
 
   constructor(
     private authService: AuthService,
@@ -108,79 +88,54 @@ export class Dashboard {
   ) {
     this.currentUser.set(this.authService.getCurrentUser());
     void this.carregarDados();
-
-    this.destroyRef.onDestroy(() => {
-      this.chartVendas?.destroy();
-      this.chartProdutos?.destroy();
-    });
-
-    effect(() => {
-      const g = this.graficos();
-      const cv = this.vendasCanvas()?.nativeElement;
-      const cp = this.produtosCanvas()?.nativeElement;
-      if (!g || !cv) {
-        return;
-      }
-      queueMicrotask(() => {
-        this.renderVendas(cv, g.vendasPorMes);
-        if (cp && g.produtosPorCategoria.length > 0) {
-          this.renderProdutos(cp, g.produtosPorCategoria);
-        } else {
-          this.chartProdutos?.destroy();
-          this.chartProdutos = undefined;
-        }
-      });
-    });
   }
 
   readonly packageIconSrc = '/assets/menu/package.png';
 
-  formatCrescimento(valor: number | undefined): string {
-    const v = valor ?? 0;
-    const formatted = new Intl.NumberFormat('pt-BR', {
-      minimumFractionDigits: 1,
-      maximumFractionDigits: 1,
-    }).format(v);
-    const prefix = v > 0 ? '+' : '';
-    return `${prefix}${formatted}%`;
-  }
-
-  barraCorClass(status: StatusEstoqueNivel): string {
-    switch (status) {
-      case 'critico':
-        return 'estoque-bar__fill--critico';
-      case 'atencao':
-        return 'estoque-bar__fill--atencao';
-      default:
-        return 'estoque-bar__fill--estavel';
+  formatDataHistorico(data: string): string {
+    const parsed = new Date(data);
+    if (Number.isNaN(parsed.getTime())) {
+      return "";
     }
-  }
 
-  badgeClass(status: StatusEstoqueNivel): string {
-    switch (status) {
-      case 'critico':
-        return 'estoque-badge--critico';
-      case 'atencao':
-        return 'estoque-badge--atencao';
-      default:
-        return 'estoque-badge--estavel';
+    const now = new Date();
+    const diffMs = now.getTime() - parsed.getTime();
+    const diffMsAbs = Math.abs(diffMs);
+
+    const diffMinutos = Math.floor(diffMsAbs / (1000 * 60));
+    if (diffMinutos < 1) {
+      return "Agora mesmo";
     }
-  }
-
-  labelStatus(status: StatusEstoqueNivel): string {
-    switch (status) {
-      case 'critico':
-        return 'Crítico';
-      case 'atencao':
-        return 'Atenção';
-      default:
-        return 'Estável';
+    if (diffMinutos < 60) {
+      return `Há ${diffMinutos} ${diffMinutos === 1 ? "minuto" : "minutos"} atrás`;
     }
-  }
 
-  iconWrapClass(index: number): string {
-    const i = index % CORES_PRIMARIAS_CONTRASTE.length;
-    return `estoque-prod-icon estoque-prod-icon--t${i}`;
+    const diffHoras = Math.floor(diffMsAbs / (1000 * 60 * 60));
+    if (diffHoras < 24) {
+      return `Há ${diffHoras} ${diffHoras === 1 ? "hora" : "horas"} atrás`;
+    }
+
+    const hojeKey = formatDateKeyInTimezone(now, DASHBOARD_TIMEZONE);
+    const ontemDate = new Date(now);
+    ontemDate.setDate(ontemDate.getDate() - 1);
+    const ontemKey = formatDateKeyInTimezone(ontemDate, DASHBOARD_TIMEZONE);
+    const parsedKey = formatDateKeyInTimezone(parsed, DASHBOARD_TIMEZONE);
+
+    if (parsedKey === ontemKey && parsedKey !== hojeKey) {
+      const horaMinuto = new Intl.DateTimeFormat("pt-BR", {
+        timeZone: DASHBOARD_TIMEZONE,
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }).format(parsed);
+      return `Ontem, às ${horaMinuto}`;
+    }
+
+    return new Intl.DateTimeFormat("pt-BR", {
+      dateStyle: "short",
+      timeStyle: "short",
+      timeZone: DASHBOARD_TIMEZONE,
+    }).format(parsed);
   }
 
   private mapProdutosStatusEstoque(sortedRaw: any[]): LinhaStatusEstoque[] {
@@ -264,135 +219,19 @@ export class Dashboard {
     return Math.min(100, Math.round((atual / denom) * 1000) / 10);
   }
 
-  private formatBrl(v: number): string {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(v);
-  }
-
-  private renderVendas(canvas: HTMLCanvasElement, pontos: { labelMes: string; valor: number }[]) {
-    this.chartVendas?.destroy();
-
-    const labels = pontos.map((p) => p.labelMes);
-    const valores = pontos.map((p) => p.valor);
-    const coresBarras = valores.map(
-      (_, i) => CORES_PRIMARIAS_CONTRASTE[i % CORES_PRIMARIAS_CONTRASTE.length]
-    );
-
-    this.chartVendas = new Chart(canvas, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Vendas',
-            data: valores,
-            backgroundColor: coresBarras,
-            borderColor: '#ffffff',
-            borderWidth: 2,
-            borderRadius: 6,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => this.formatBrl(Number(ctx.raw)),
-            },
-          },
-        },
-        scales: {
-          x: {
-            grid: { display: false },
-            ticks: { maxRotation: 45, minRotation: 0 },
-          },
-          y: {
-            beginAtZero: true,
-            ticks: {
-              callback: (value) =>
-                new Intl.NumberFormat('pt-BR', {
-                  notation: 'compact',
-                  compactDisplay: 'short',
-                }).format(Number(value)),
-            },
-          },
-        },
-      },
-    });
-  }
-
-  private renderProdutos(
-    canvas: HTMLCanvasElement,
-    pontos: { categoriaNome: string; quantidade: number }[]
-  ) {
-    this.chartProdutos?.destroy();
-
-    const labels = pontos.map((p) => p.categoriaNome);
-    const valores = pontos.map((p) => p.quantidade);
-    const cores = pontos.map(
-      (_, i) => CORES_PRIMARIAS_CONTRASTE[i % CORES_PRIMARIAS_CONTRASTE.length]
-    );
-
-    this.chartProdutos = new Chart(canvas, {
-      type: 'doughnut',
-      data: {
-        labels,
-        datasets: [
-          {
-            data: valores,
-            backgroundColor: cores,
-            borderWidth: 3,
-            borderColor: '#ffffff',
-            hoverBorderColor: '#0a3d5c',
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'right',
-            labels: {
-              boxWidth: 14,
-              padding: 12,
-              font: { size: 12 },
-              color: '#333333',
-              usePointStyle: true,
-              pointStyle: 'rectRounded',
-            },
-          },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => {
-                const total = (ctx.dataset.data as number[]).reduce((a, b) => a + b, 0);
-                const v = Number(ctx.raw);
-                const pct = total > 0 ? Math.round((v / total) * 100) : 0;
-                return `${ctx.label}: ${v} (${pct}%)`;
-              },
-            },
-          },
-        },
-      },
-    });
-  }
-
   private async carregarDados() {
     try {
       this.loading.set(true);
       this.errorMessage.set('');
-      const [resumoData, graficosData, produtosRaw] = await Promise.all([
+      const [resumoData, graficosData, historicosData, produtosRaw] = await Promise.all([
         firstValueFrom(this.http.get<DashboardResumo>(`${API_URL}/dashboard/resumo`)),
         firstValueFrom(this.http.get<DashboardGraficos>(`${API_URL}/dashboard/graficos`)),
+        firstValueFrom(this.http.get<DashboardHistorico[]>(`${API_URL}/dashboard/historicos-recentes`)),
         firstValueFrom(this.http.get<any[]>(`${API_URL}/produtos`)),
       ]);
       this.resumo.set(resumoData);
       this.graficos.set(graficosData);
+      this.historicosRecentes.set(Array.isArray(historicosData) ? historicosData : []);
       const lista = Array.isArray(produtosRaw)
         ? produtosRaw.filter((p) => Boolean(p.ativo ?? true))
         : [];
@@ -407,6 +246,7 @@ export class Dashboard {
       this.errorMessage.set('Não foi possível carregar os indicadores.');
       this.resumo.set(null);
       this.graficos.set(null);
+      this.historicosRecentes.set([]);
       this.linhasStatusEstoque.set([]);
     } finally {
       this.loading.set(false);

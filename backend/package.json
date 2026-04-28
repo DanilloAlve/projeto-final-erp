@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/server.ts",
     "build": "npx tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "seed:pedido-codigo": "tsx src/seeds/fillPedidoCodigoSeed.ts"
   },
   "keywords": [],
   "author": "",

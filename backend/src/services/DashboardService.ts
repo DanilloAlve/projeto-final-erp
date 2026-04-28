@@ -2,6 +2,7 @@ import { DataSource, Repository } from "typeorm";
 import { Pedido } from "../entities/Pedido.js";
 import { Produto } from "../entities/Produto.js";
 import { Cliente } from "../entities/Cliente.js";
+import { Historico } from "../entities/Historico.js";
 
 /** Início e fim do mês no fuso local (alinhado a “este mês” na interface). */
 function monthRangeLocal(year: number, monthIndex0: number): { start: Date; end: Date } {
@@ -26,6 +27,14 @@ export type DashboardGraficosDTO = {
   produtosPorCategoria: ProdutoCategoriaPontoDTO[];
 };
 
+export type DashboardHistoricoDTO = {
+  id: string;
+  tabela: string;
+  acao: string;
+  referencia: string | null;
+  dataModificacao: Date;
+};
+
 const MESES_CURTOS_PT = [
   "jan",
   "fev",
@@ -45,11 +54,13 @@ export class DashboardService {
   private pedidoRepo: Repository<Pedido>;
   private produtoRepo: Repository<Produto>;
   private clienteRepo: Repository<Cliente>;
+  private historicoRepo: Repository<Historico>;
 
   constructor(dataSource: DataSource) {
     this.pedidoRepo = dataSource.getRepository(Pedido);
     this.produtoRepo = dataSource.getRepository(Produto);
     this.clienteRepo = dataSource.getRepository(Cliente);
+    this.historicoRepo = dataSource.getRepository(Historico);
   }
 
   private async sumVendasMes(range: { start: Date; end: Date }): Promise<number> {
@@ -140,5 +151,20 @@ export class DashboardService {
     }));
 
     return { vendasPorMes, produtosPorCategoria };
+  }
+
+  async getHistoricosRecentes(limit = 5): Promise<DashboardHistoricoDTO[]> {
+    const historicos = await this.historicoRepo.find({
+      order: { data_modificacao: "DESC" },
+      take: limit,
+    });
+
+    return historicos.map((h) => ({
+      id: h.id,
+      tabela: h.tabela,
+      acao: h.acao,
+      referencia: h.referencia,
+      dataModificacao: h.data_modificacao,
+    }));
   }
 }

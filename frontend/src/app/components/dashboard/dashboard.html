@@ -8,173 +8,20 @@
       <p class="dashboard-error" role="alert">{{ errorMessage() }}</p>
     }
 
-    <div class="dashboard-grid">
-      <div class="card">
-        <div class="card-header">
-          <h3>Total de Vendas</h3>
-        </div>
-        @if (loading()) {
-          <div class="card-value card-value--muted">…</div>
-        } @else {
-          <div class="card-value">{{ resumo()?.vendasMesAtual ?? 0 | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</div>
-        }
-        <p class="card-subtitle">Pedidos pagos neste mês</p>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <h3>Produtos</h3>
-        </div>
-        @if (loading()) {
-          <div class="card-value card-value--muted">…</div>
-        } @else {
-          <div class="card-value">{{ resumo()?.produtosAtivos ?? 0 }}</div>
-        }
-        <p class="card-subtitle">Ativos no catálogo</p>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <h3>Clientes</h3>
-        </div>
-        @if (loading()) {
-          <div class="card-value card-value--muted">…</div>
-        } @else {
-          <div class="card-value">{{ resumo()?.totalClientes ?? 0 }}</div>
-        }
-        <p class="card-subtitle">Cadastrados</p>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <h3>Crescimento</h3>
-        </div>
-        @if (loading()) {
-          <div class="card-value card-value--muted">…</div>
-        } @else {
-          <div class="card-value">{{ formatCrescimento(resumo()?.crescimentoPercentual) }}</div>
-        }
-        <p class="card-subtitle">Vendas vs. mês anterior</p>
-      </div>
-    </div>
-
-    <section class="dashboard-charts" aria-label="Gráficos">
-      <div class="chart-card chart-card--vendas">
-        <h3 class="chart-title">Vendas</h3>
-        <p class="chart-hint">Pedidos pagos nos últimos 6 meses</p>
-        @if (loading()) {
-          <div class="chart-skeleton" aria-hidden="true"></div>
-        } @else {
-          <div class="chart-wrap">
-            <canvas #vendasChart role="img" aria-label="Gráfico de barras de vendas por mês"></canvas>
-          </div>
-        }
-      </div>
-
-      <div class="chart-card chart-card--produtos">
-        <h3 class="chart-title">Produtos por categoria</h3>
-        <p class="chart-hint">Produtos ativos no catálogo</p>
-        @if (loading()) {
-          <div class="chart-skeleton chart-skeleton--donut" aria-hidden="true"></div>
-        } @else if ((graficos()?.produtosPorCategoria?.length ?? 0) === 0) {
-          <p class="chart-empty">Nenhum produto ativo vinculado a categorias.</p>
-        } @else {
-          <div class="chart-wrap chart-wrap--donut">
-            <canvas #produtosChart role="img" aria-label="Gráfico de rosca de produtos por categoria"></canvas>
-          </div>
-        }
-      </div>
-    </section>
+    <app-summary-cards [loading]="loading()" [resumo]="resumo()"></app-summary-cards>
+    <app-dashboard-charts [loading]="loading()" [graficos]="graficos()"></app-dashboard-charts>
 
     <div class="dashboard-activities-estoque">
-      <div class="recent-section">
-        <h2>Atividades Recentes</h2>
-        <div class="activity-list">
-          <div class="activity-item">
-            <div class="activity-content">
-              <p>Novo pedido recebido</p>
-              <span class="activity-time">Há 2 horas</span>
-            </div>
-          </div>
-          <div class="activity-item">
-            <div class="activity-content">
-              <p>Estoque baixo em Produto A</p>
-              <span class="activity-time">Há 4 horas</span>
-            </div>
-          </div>
-          <div class="activity-item">
-            <div class="activity-content">
-              <p>Novo usuário registrado</p>
-              <span class="activity-time">Há 6 horas</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <app-recent-activities
+        [loading]="loading()"
+        [historicosRecentes]="historicosRecentes()"
+        [formatDataHistorico]="formatDataHistorico.bind(this)"
+      ></app-recent-activities>
 
-      <section class="estoque-status-card" aria-labelledby="estoque-status-heading">
-        <div class="estoque-status-card__head">
-          <h2 id="estoque-status-heading" class="estoque-status-card__title">Status do Estoque</h2>
-          <a routerLink="/produtos" class="estoque-status-card__link">Ver todos</a>
-        </div>
-
-        @if (loading()) {
-          <div class="estoque-status-skeleton" aria-hidden="true"></div>
-        } @else if (linhasStatusEstoque().length === 0) {
-          <p class="estoque-status-empty">Nenhum produto ativo para exibir.</p>
-        } @else {
-          <div class="estoque-table-wrap">
-            <table class="estoque-table">
-              <thead>
-                <tr>
-                  <th scope="col">Produto</th>
-                  <th scope="col">Código</th>
-                  <th scope="col">Categoria</th>
-                  <th scope="col">Estoque total</th>
-                  <th scope="col">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (row of linhasStatusEstoque(); track row.id) {
-                  <tr>
-                    <td>
-                      <div class="estoque-prod-cell">
-                        <span [class]="iconWrapClass(row.iconTintIndex)" aria-hidden="true">
-                          <img [src]="packageIconSrc" alt="" width="22" height="22" />
-                        </span>
-                        <span class="estoque-prod-text">
-                          <span class="estoque-prod-name">{{ row.nome }}</span>
-                          <span class="estoque-prod-sku">{{ row.skuLabel }}</span>
-                        </span>
-                      </div>
-                    </td>
-                    <td class="estoque-table-mono">{{ row.codigo }}</td>
-                    <td>{{ row.categoriaNome }}</td>
-                    <td>
-                      <div class="estoque-qty-bar">
-                        <span class="estoque-qty-label">
-                          {{ row.estoqueAtual }}
-                          {{ row.estoqueAtual === 1 ? 'unidade' : 'unidades' }}
-                        </span>
-                        <div class="estoque-bar" role="progressbar" [attr.aria-valuenow]="row.barraPct" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="'Nível em relação ao máximo: ' + row.barraPct + '%'">
-                          <div class="estoque-bar__track">
-                            <div
-                              class="estoque-bar__fill"
-                              [ngClass]="barraCorClass(row.status)"
-                              [style.width.%]="row.barraPct"
-                            ></div>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <span class="estoque-badge" [class]="badgeClass(row.status)">{{ labelStatus(row.status) }}</span>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        }
-      </section>
+      <app-stock-status
+        [loading]="loading()"
+        [linhasStatusEstoque]="linhasStatusEstoque()"
+        [packageIconSrc]="packageIconSrc"
+      ></app-stock-status>
     </div>
 </app-page-layout>

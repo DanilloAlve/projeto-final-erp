@@ -1,5 +1,5 @@
 import type { EntityManager } from "typeorm";
-import { DataSource, Repository } from "typeorm";
+import { DataSource, IsNull, Repository } from "typeorm";
 import { Pedido } from "../entities/Pedido.js";
 import { Cliente } from "../entities/Cliente.js";
 import { Usuario } from "../entities/Usuario.js";
@@ -29,6 +29,44 @@ export class PedidoService {
   private num(n: unknown): number {
     const x = Number(n);
     return Number.isFinite(x) ? x : 0;
+  }
+
+  private gerarCodigoPedido(): string {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let codigo = "";
+    for (let i = 0; i < 4; i += 1) {
+      const idx = Math.floor(Math.random() * chars.length);
+      codigo += chars[idx];
+    }
+    return codigo;
+  }
+
+  private async gerarCodigoPedidoUnico(em: EntityManager): Promise<string> {
+    const pedidoRepo = em.getRepository(Pedido);
+    const limiteTentativas = 20;
+
+    for (let tentativa = 0; tentativa < limiteTentativas; tentativa += 1) {
+      const codigo = this.gerarCodigoPedido();
+      const existente = await pedidoRepo.existsBy({ codigo });
+      if (!existente) return codigo;
+    }
+
+    throw new AppError("Não foi possível gerar código único para o pedido", 500);
+  }
+
+  async preencherCodigosPedidosExistentes(): Promise<void> {
+    await this.dataSource.transaction(async (em) => {
+      const pedidoRepo = em.getRepository(Pedido);
+      const pedidosSemCodigo = await pedidoRepo.find({
+        where: [{ codigo: IsNull() }, { codigo: "" }],
+        select: { id: true, codigo: true },
+      });
+
+      for (const pedido of pedidosSemCodigo) {
+        pedido.codigo = await this.gerarCodigoPedidoUnico(em);
+        await pedidoRepo.save(pedido);
+      }
+    });
   }
 
   private totalFromItensPayload(itens: unknown): number | null {
@@ -92,6 +130,7 @@ export class PedidoService {
       const total = fromItens !== null ? fromItens : this.num(data.total);
 
       const pedido = pedidoRepo.create({
+        codigo: await this.gerarCodigoPedidoUnico(em),
         cliente,
         usuario,
         total,
@@ -123,6 +162,9 @@ export class PedidoService {
   async findAll() {
     return await this.pedidoRepo.find({
       relations: pedidoDetailRelations,
+      order: {
+        created_at: "DESC",
+      },
     });
   }
 

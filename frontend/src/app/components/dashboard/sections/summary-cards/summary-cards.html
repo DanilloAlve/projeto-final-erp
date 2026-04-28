@@ -1,0 +1,49 @@
+<div class="dashboard-grid">
+  <div class="card">
+    <div class="card-header">
+      <h3>Total de Vendas</h3>
+    </div>
+    @if (loading) {
+      <div class="card-value card-value--muted">…</div>
+    } @else {
+      <div class="card-value">{{ resumo?.vendasMesAtual ?? 0 | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</div>
+    }
+    <p class="card-subtitle">Pedidos pagos neste mês</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>Produtos</h3>
+    </div>
+    @if (loading) {
+      <div class="card-value card-value--muted">…</div>
+    } @else {
+      <div class="card-value">{{ resumo?.produtosAtivos ?? 0 }}</div>
+    }
+    <p class="card-subtitle">Ativos no catálogo</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>Clientes</h3>
+    </div>
+    @if (loading) {
+      <div class="card-value card-value--muted">…</div>
+    } @else {
+      <div class="card-value">{{ resumo?.totalClientes ?? 0 }}</div>
+    }
+    <p class="card-subtitle">Cadastrados</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>Crescimento</h3>
+    </div>
+    @if (loading) {
+      <div class="card-value card-value--muted">…</div>
+    } @else {
+      <div class="card-value">{{ formatCrescimento(resumo?.crescimentoPercentual) }}</div>
+    }
+    <p class="card-subtitle">Vendas vs. mês anterior</p>
+  </div>
+</div>
