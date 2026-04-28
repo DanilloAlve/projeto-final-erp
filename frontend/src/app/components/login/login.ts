@@ -98,7 +98,7 @@ export class Login implements AfterViewInit {
       googleApi.renderButton(target, {
         theme: 'outline',
         size: 'large',
-        text: 'continue_with',
+        text: 'signin_with',
         shape: 'rectangular',
         width: 320,
       });

@@ -1,4 +1,4 @@
-import type { DataSource, Repository } from "typeorm";
+import { QueryFailedError, type DataSource, type Repository } from "typeorm";
 import { Produto } from "../entities/Produto.js";
 import { Categoria } from "../entities/Categoria.js";
 import { AppError } from "../errors/AppErrors.js";
@@ -184,10 +184,29 @@ export class ProdutoService {
     }
 
     async deleteProduto(id: string | number) {
-        const result = await this.produtoRepo.delete(id as never);
-        if (result.affected === 0) {
-            throw new AppError("Produto nao encontrado!", 404);
+        try {
+            const result = await this.produtoRepo.delete(id as never);
+            if (result.affected === 0) {
+                throw new AppError("Produto nao encontrado!", 404);
+            }
+        } catch (error) {
+            if (this.isForeignKeyConstraintError(error)) {
+                throw new AppError(
+                    "Produto nao pode ser excluido pois possui registros vinculados.",
+                    409
+                );
+            }
+            throw error;
         }
+    }
+
+    private isForeignKeyConstraintError(error: unknown) {
+        if (!(error instanceof QueryFailedError)) {
+            return false;
+        }
+
+        const driverError = error.driverError as { code?: string; errno?: number } | undefined;
+        return driverError?.code === "ER_ROW_IS_REFERENCED_2" || driverError?.errno === 1451;
     }
 
     private validateEstoqueLimites(

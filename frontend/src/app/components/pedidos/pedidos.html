@@ -154,7 +154,9 @@
         </select>
       </div>
 
-      <p *ngIf="!podeAlterarStatus(pd.status)" class="hint-cancelado">Pedido cancelado — o status não pode ser alterado.</p>
+      <p *ngIf="!podeAlterarStatus(pd.status)" class="hint-cancelado">
+        {{ pd.status === 'pago' ? 'Pedido pago — não é permitido editar.' : 'Pedido cancelado — o status não pode ser alterado.' }}
+      </p>
 
       <h3 class="itens-titulo">Itens</h3>
       <table class="pedidos-table itens-readonly">
@@ -187,7 +189,15 @@
           Salvar status
         </button>
         <button class="btn btn-secondary" type="button" (click)="fecharModalDetalhe()">Fechar</button>
-        <button class="btn-excluir-pedido" type="button" (click)="excluirPedido(pd)" [disabled]="excluindo()">Excluir pedido</button>
+        <button
+          *ngIf="podeExcluirPedido(pd.status)"
+          class="btn-excluir-pedido"
+          type="button"
+          (click)="excluirPedido(pd)"
+          [disabled]="excluindo()"
+        >
+          Excluir pedido
+        </button>
       </div>
     </div>
   </div>
