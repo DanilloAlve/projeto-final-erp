@@ -6,6 +6,7 @@ import { Financeiro } from './components/financeiro/financeiro';
 import { Movimentacoes } from './components/movimentacoes/movimentacoes';
 import { Clientes } from './components/clientes/clientes';
 import { Pedidos } from './components/pedidos/pedidos';
+import { Vendas } from './components/vendas/vendas';
 import { Produtos } from './components/produtos/produtos';
 import { Categorias } from './components/categorias/categorias';
 import { UsuariosComponent } from './components/usuarios/usuarios';
@@ -25,7 +26,7 @@ export const routes: Routes = [
     path: 'produtos',
     component: Produtos,
     canActivate: [AuthGuard, RoleGuard],
-    data: { perfis: ['ADMINISTRADOR_SISTEMA', 'GERENTE_SUPERVISOR', 'OPERADOR_ESTOQUE'] },
+    data: { perfis: ['ADMINISTRADOR_SISTEMA', 'GERENTE_SUPERVISOR', 'OPERADOR_ESTOQUE', 'VENDEDOR'] },
   },
   {
     path: 'categorias',
@@ -43,19 +44,25 @@ export const routes: Routes = [
     path: 'movimentacoes',
     component: Movimentacoes,
     canActivate: [AuthGuard, RoleGuard],
-    data: { perfis: ['ADMINISTRADOR_SISTEMA', 'GERENTE_SUPERVISOR', 'OPERADOR_ESTOQUE', 'FINANCEIRO_CONTADOR'] },
+    data: { perfis: ['ADMINISTRADOR_SISTEMA', 'GERENTE_SUPERVISOR', 'OPERADOR_ESTOQUE', 'FINANCEIRO_CONTADOR', 'VENDEDOR'] },
   },
   {
     path: 'clientes',
     component: Clientes,
     canActivate: [AuthGuard, RoleGuard],
-    data: { perfis: ['ADMINISTRADOR_SISTEMA', 'GERENTE_SUPERVISOR', 'FINANCEIRO_CONTADOR'] },
+    data: { perfis: ['ADMINISTRADOR_SISTEMA', 'GERENTE_SUPERVISOR', 'FINANCEIRO_CONTADOR', 'VENDEDOR'] },
   },
   {
     path: 'pedidos',
     component: Pedidos,
     canActivate: [AuthGuard, RoleGuard],
-    data: { perfis: ['ADMINISTRADOR_SISTEMA', 'GERENTE_SUPERVISOR', 'FINANCEIRO_CONTADOR', 'OPERADOR_ESTOQUE'] },
+    data: { perfis: ['ADMINISTRADOR_SISTEMA', 'GERENTE_SUPERVISOR', 'FINANCEIRO_CONTADOR', 'OPERADOR_ESTOQUE', 'VENDEDOR'] },
+  },
+  {
+    path: 'vendas',
+    component: Vendas,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { perfis: ['ADMINISTRADOR_SISTEMA', 'GERENTE_SUPERVISOR', 'VENDEDOR'] },
   },
   {
     path: 'usuarios',

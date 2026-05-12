@@ -45,7 +45,7 @@
             <span class="status-badge" [ngClass]="classeStatus(pedido.status)">{{ labelStatus(pedido.status) }}</span>
           </td>
           <td>{{ pedido.itens.length }}</td>
-          <td>{{ pedido.created_at ? (pedido.created_at | date: 'dd/MM/yyyy HH:mm') : '-' }}</td>
+          <td>{{ pedido.data_entrega ? (pedido.data_entrega | date: 'dd/MM/yyyy') : (pedido.created_at ? (pedido.created_at | date: 'dd/MM/yyyy HH:mm') : '-') }}</td>
           <td class="acoes">
             <button type="button" (click)="abrirModalDetalhe(pedido)" class="btn-acao editar" title="Detalhes">✎</button>
             <button

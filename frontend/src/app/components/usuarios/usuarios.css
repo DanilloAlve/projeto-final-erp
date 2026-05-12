@@ -314,6 +314,11 @@
     color: #fff;
   }
 
+  &.badge-vendedor {
+    background: #8b5cf6;
+    color: #fff;
+  }
+
   /* Legado / compatibilidade */
   &.badge-administrador {
     background: #dc3545;

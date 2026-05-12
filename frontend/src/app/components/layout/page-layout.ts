@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { PerfilEnum, type Perfil } from '../../services/profiles';
 
-type PageKey = 'dashboard' | 'produtos' | 'categorias' | 'financeiro' | 'movimentacoes' | 'clientes' | 'pedidos' | 'usuarios';
+type PageKey = 'dashboard' | 'produtos' | 'categorias' | 'financeiro' | 'movimentacoes' | 'clientes' | 'pedidos' | 'vendas' | 'usuarios';
 
 @Component({
   selector: 'app-page-layout',
@@ -47,7 +47,8 @@ export class PageLayoutComponent {
     return this.perfilEhUmDe(
       PerfilEnum.ADMINISTRADOR_SISTEMA,
       PerfilEnum.GERENTE_SUPERVISOR,
-      PerfilEnum.OPERADOR_ESTOQUE
+      PerfilEnum.OPERADOR_ESTOQUE,
+      PerfilEnum.VENDEDOR
     );
   }
 
@@ -72,7 +73,8 @@ export class PageLayoutComponent {
       PerfilEnum.ADMINISTRADOR_SISTEMA,
       PerfilEnum.GERENTE_SUPERVISOR,
       PerfilEnum.OPERADOR_ESTOQUE,
-      PerfilEnum.FINANCEIRO_CONTADOR
+      PerfilEnum.FINANCEIRO_CONTADOR,
+      PerfilEnum.VENDEDOR
     );
   }
 
@@ -80,7 +82,8 @@ export class PageLayoutComponent {
     return this.perfilEhUmDe(
       PerfilEnum.ADMINISTRADOR_SISTEMA,
       PerfilEnum.GERENTE_SUPERVISOR,
-      PerfilEnum.FINANCEIRO_CONTADOR
+      PerfilEnum.FINANCEIRO_CONTADOR,
+      PerfilEnum.VENDEDOR
     );
   }
 
@@ -89,7 +92,16 @@ export class PageLayoutComponent {
       PerfilEnum.ADMINISTRADOR_SISTEMA,
       PerfilEnum.GERENTE_SUPERVISOR,
       PerfilEnum.FINANCEIRO_CONTADOR,
-      PerfilEnum.OPERADOR_ESTOQUE
+      PerfilEnum.OPERADOR_ESTOQUE,
+      PerfilEnum.VENDEDOR
+    );
+  }
+
+  podeVerVendas() {
+    return this.perfilEhUmDe(
+      PerfilEnum.ADMINISTRADOR_SISTEMA,
+      PerfilEnum.GERENTE_SUPERVISOR,
+      PerfilEnum.VENDEDOR
     );
   }
 
@@ -123,6 +135,10 @@ export class PageLayoutComponent {
 
   irParaPedidos() {
     this.router.navigate(['/pedidos']);
+  }
+
+  irParaVendas() {
+    this.router.navigate(['/vendas']);
   }
 
   irParaUsuarios() {

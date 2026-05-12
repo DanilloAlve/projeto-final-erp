@@ -6,14 +6,6 @@
       </div>
 
       <div class="hero-body">
-        <div class="hero-chart" aria-hidden="true">
-          @if (loading) {
-            <div class="hero-chart-skeleton"></div>
-          } @else {
-            <canvas #vendasLineChart></canvas>
-          }
-        </div>
-
         <div class="hero-meta">
           <p class="card-subtitle">Pedidos pagos neste mês</p>
           @if (loading) {
@@ -22,13 +14,42 @@
             <div class="card-value card-value--hero">{{ resumo?.vendasMesAtual ?? 0 | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</div>
           }
         </div>
+
+        <div class="ultimos-vendidos">
+          <p class="ultimos-vendidos-titulo">Últimos produtos vendidos</p>
+          <table class="ultimos-vendidos-table">
+            <thead>
+              <tr>
+                <th>Produto</th>
+                <th>Qtd</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (ultimosVendidos.length === 0) {
+                <tr>
+                  <td colspan="3" class="ultimos-vazio">Nenhuma venda recente</td>
+                </tr>
+              } @else {
+                @for (item of ultimosVendidos.slice(0, 3); track item.nome) {
+                  <tr>
+                    <td>{{ item.nome }}</td>
+                    <td>{{ item.quantidade }}</td>
+                    <td>{{ item.total | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
     <div class="summary-stack">
       <div class="card card--medium">
-        <div class="card-header">
+        <div class="card-header card-header--status">
           <h3>Produtos</h3>
+          <span class="card-status card-status--active">ATIVO</span>
         </div>
         @if (loading) {
           <div class="card-value card-value--muted">…</div>

@@ -4,6 +4,7 @@ export const PERFIS = [
   'OPERADOR_ESTOQUE',
   'FINANCEIRO_CONTADOR',
   'APENAS_VISUALIZACAO',
+  'VENDEDOR',
 ] as const;
 
 export type Perfil = (typeof PERFIS)[number];
@@ -15,6 +16,7 @@ export enum PerfilEnum {
   OPERADOR_ESTOQUE = 'OPERADOR_ESTOQUE',
   FINANCEIRO_CONTADOR = 'FINANCEIRO_CONTADOR',
   APENAS_VISUALIZACAO = 'APENAS_VISUALIZACAO',
+  VENDEDOR = 'VENDEDOR',
 }
 
 /** Perfil usado quando a API não envia valor reconhecido ou em formulários iniciais. */
@@ -26,6 +28,7 @@ export const PERFIL_LABELS: Record<Perfil, string> = {
   OPERADOR_ESTOQUE: 'Operador de Estoque',
   FINANCEIRO_CONTADOR: 'Financeiro / Contador',
   APENAS_VISUALIZACAO: 'Apenas Visualizacao',
+  VENDEDOR: 'Vendedor',
 };
 
 export function isPerfilKey(value: string): value is Perfil {

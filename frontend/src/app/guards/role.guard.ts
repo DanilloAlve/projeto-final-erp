@@ -13,6 +13,7 @@ export class RoleGuard implements CanActivate {
     OPERADOR_ESTOQUE: '/produtos',
     FINANCEIRO_CONTADOR: '/financeiro',
     APENAS_VISUALIZACAO: '/dashboard',
+    VENDEDOR: '/vendas',
   };
 
   constructor(private authService: AuthService, private router: Router) {}

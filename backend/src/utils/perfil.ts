@@ -10,6 +10,7 @@ export const PERFIS_CHAVE = [
   "OPERADOR_ESTOQUE",
   "FINANCEIRO_CONTADOR",
   "APENAS_VISUALIZACAO",
+  "VENDEDOR",
 ] as const;
 
 export type PerfilChave = (typeof PERFIS_CHAVE)[number];

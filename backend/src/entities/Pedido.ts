@@ -17,8 +17,8 @@ export class Pedido {
   @Column({ type: "varchar", length: 4, unique: true, nullable: true })
   codigo!: string | null;
 
-  @ManyToOne(() => Cliente, (cliente) => cliente.pedidos)
-  cliente!: Cliente;
+  @ManyToOne(() => Cliente, (cliente) => cliente.pedidos, { nullable: true })
+  cliente!: Cliente | null;
 
   @ManyToOne(() => Usuario, (usuario) => usuario.pedidos)
   usuario!: Usuario;
@@ -33,6 +33,9 @@ export class Pedido {
     cascade: true,
   })
   itens!: ItemPedido[];
+
+  @Column({ type: "date", nullable: true })
+  data_entrega!: string | null;
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
     created_at!: Date;

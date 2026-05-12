@@ -27,6 +27,7 @@ export const permissions: PermissionMap = {
     [Perfil.FINANCEIRO_CONTADOR]: ["create", "read", "update"],
     [Perfil.OPERADOR_ESTOQUE]: ["read"],
     [Perfil.APENAS_VISUALIZACAO]: ["read"],
+    [Perfil.VENDEDOR]: ["create", "read", "update"],
   },
 
   produto: {
@@ -34,6 +35,7 @@ export const permissions: PermissionMap = {
     [Perfil.GERENTE_SUPERVISOR]: ["create", "read", "update", "delete"],
     [Perfil.OPERADOR_ESTOQUE]: ["create", "read", "update", "delete"],
     [Perfil.APENAS_VISUALIZACAO]: ["read"],
+    [Perfil.VENDEDOR]: ["read"],
   },
 
   movimentacao: {
@@ -42,5 +44,12 @@ export const permissions: PermissionMap = {
     [Perfil.OPERADOR_ESTOQUE]: ["create", "read", "update", "delete"],
     [Perfil.FINANCEIRO_CONTADOR]: ["read"],
     [Perfil.APENAS_VISUALIZACAO]: ["read"],
+    [Perfil.VENDEDOR]: ["read"],
+  },
+
+  venda: {
+    [Perfil.ADMINISTRADOR_SISTEMA]: ["create", "read", "update", "delete"],
+    [Perfil.GERENTE_SUPERVISOR]: ["create", "read", "update", "delete"],
+    [Perfil.VENDEDOR]: ["create", "read", "update"],
   },
 };

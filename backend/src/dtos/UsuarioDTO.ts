@@ -10,7 +10,7 @@ function normalizePerfil(val: unknown): unknown {
 
   if (typeof val === "string") {
     const t = val.trim();
-    if (/^[0-4]$/.test(t)) return Number(t);
+    if (/^[0-5]$/.test(t)) return Number(t);
 
     const porChave = perfilChaveParaEnum(t);
     if (porChave !== undefined) return porChave;

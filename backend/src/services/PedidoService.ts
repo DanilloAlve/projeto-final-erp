@@ -97,7 +97,10 @@ export class PedidoService {
     const atual = Math.trunc(this.num(produto.estoque_atual));
     const novo = atual + delta;
     if (novo < 0) {
-      throw new AppError("Estoque insuficiente para concluir a operação", 400);
+      throw new AppError(
+        `Estoque insuficiente para o produto "${produto.nome}" (disponível: ${atual}, solicitado: ${Math.abs(delta)})`,
+        400,
+      );
     }
     produto.estoque_atual = novo;
     await produtoRepo.save(produto);
@@ -148,8 +151,11 @@ export class PedidoService {
       const usuarioRepo = em.getRepository(Usuario);
       const pedidoRepo = em.getRepository(Pedido);
 
-      const cliente = await clienteRepo.findOneBy({ id: data.clienteId });
-      if (!cliente) throw new AppError("Cliente não encontrado", 404);
+      let cliente: Cliente | null = null;
+      if (data.clienteId) {
+        cliente = await clienteRepo.findOneBy({ id: data.clienteId });
+        if (!cliente) throw new AppError("Cliente não encontrado", 404);
+      }
 
       const usuario = await usuarioRepo.findOneBy({ id_user: data.usuarioId });
       if (!usuario) throw new AppError("Usuário não encontrado", 404);
@@ -164,6 +170,7 @@ export class PedidoService {
         total,
         status: data.status ?? "aberto",
         itens: data.itens,
+        data_entrega: data.data_entrega ?? null,
       });
 
       const saved = await pedidoRepo.save(pedido);

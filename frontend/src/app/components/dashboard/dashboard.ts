@@ -8,7 +8,7 @@ import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../services/auth';
 import { API_URL } from '../../services/constants';
 import { PageLayoutComponent } from '../layout/page-layout';
-import { SummaryCardsComponent } from './sections/summary-cards/summary-cards';
+import { SummaryCardsComponent, UltimoProdutoVendido } from './sections/summary-cards/summary-cards';
 import { DashboardChartsComponent } from './sections/dashboard-charts/dashboard-charts';
 import { RecentActivitiesComponent } from './sections/recent-activities/recent-activities';
 import { StockStatusComponent } from './sections/stock-status/stock-status';
@@ -81,6 +81,7 @@ export class Dashboard {
   historicosRecentes = signal<DashboardHistorico[]>([]);
   /** Até 5 produtos ativos mais recentemente atualizados */
   linhasStatusEstoque = signal<LinhaStatusEstoque[]>([]);
+  ultimosVendidos = signal<UltimoProdutoVendido[]>([]);
 
   constructor(
     private authService: AuthService,
@@ -223,11 +224,12 @@ export class Dashboard {
     try {
       this.loading.set(true);
       this.errorMessage.set('');
-      const [resumoData, graficosData, historicosData, produtosRaw] = await Promise.all([
+      const [resumoData, graficosData, historicosData, produtosRaw, pedidosRaw] = await Promise.all([
         firstValueFrom(this.http.get<DashboardResumo>(`${API_URL}/dashboard/resumo`)),
         firstValueFrom(this.http.get<DashboardGraficos>(`${API_URL}/dashboard/graficos`)),
         firstValueFrom(this.http.get<DashboardHistorico[]>(`${API_URL}/dashboard/historicos-recentes`)),
         firstValueFrom(this.http.get<any[]>(`${API_URL}/produtos`)),
+        firstValueFrom(this.http.get<any[]>(`${API_URL}/pedidos`)),
       ]);
       this.resumo.set(resumoData);
       this.graficos.set(graficosData);
@@ -241,6 +243,8 @@ export class Dashboard {
         return db - da;
       });
       this.linhasStatusEstoque.set(this.mapProdutosStatusEstoque(lista));
+
+      this.ultimosVendidos.set(this.extrairUltimosVendidos(Array.isArray(pedidosRaw) ? pedidosRaw : []));
     } catch (e) {
       console.error('Erro ao carregar dashboard:', e);
       this.errorMessage.set('Não foi possível carregar os indicadores.');
@@ -248,8 +252,33 @@ export class Dashboard {
       this.graficos.set(null);
       this.historicosRecentes.set([]);
       this.linhasStatusEstoque.set([]);
+      this.ultimosVendidos.set([]);
     } finally {
       this.loading.set(false);
     }
+  }
+
+  private extrairUltimosVendidos(pedidos: any[]): UltimoProdutoVendido[] {
+    const pedidosPagos = pedidos
+      .filter((p) => p.status === 'pago')
+      .sort((a, b) => {
+        const da = a?.created_at ? new Date(a.created_at).getTime() : 0;
+        const db = b?.created_at ? new Date(b.created_at).getTime() : 0;
+        return db - da;
+      });
+
+    const resultado: UltimoProdutoVendido[] = [];
+    for (const pedido of pedidosPagos) {
+      const itens = Array.isArray(pedido.itens) ? pedido.itens : [];
+      for (const item of itens) {
+        const nome = item.produto?.nome ?? item.produtoNome ?? '—';
+        const quantidade = Number(item.quantidade ?? 0);
+        const preco = Number(item.preco_unitario ?? 0);
+        resultado.push({ nome, quantidade, total: quantidade * preco });
+        if (resultado.length >= 3) return resultado;
+      }
+      if (resultado.length >= 3) return resultado;
+    }
+    return resultado;
   }
 }

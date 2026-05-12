@@ -26,6 +26,7 @@ export interface PedidoView {
   usuarioNome: string;
   total: number;
   status: PedidoStatus;
+  data_entrega?: string;
   created_at?: string;
   itens: ItemPedidoView[];
 }
@@ -108,6 +109,7 @@ export class Pedidos {
       usuarioNome: p.usuario?.nome ?? '—',
       total: Number(p.total ?? 0),
       status: (p.status as PedidoStatus) ?? 'aberto',
+      data_entrega: p.data_entrega ?? undefined,
       created_at: p.created_at ?? undefined,
       itens,
     };

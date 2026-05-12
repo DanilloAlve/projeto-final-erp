@@ -43,6 +43,10 @@
         <img src="/assets/menu/fornecedores.png" alt="" class="menu-icon" aria-hidden="true" />
         <span class="label">Pedidos</span>
       </a>
+      <a *ngIf="podeVerVendas()" (click)="irParaVendas()" class="menu-item" [class.ativo]="isPaginaAtiva('vendas')">
+        <img src="/assets/menu/financeiro.png" alt="" class="menu-icon" aria-hidden="true" />
+        <span class="label">Vendas</span>
+      </a>
       <a *ngIf="podeVerUsuarios()" (click)="irParaUsuarios()" class="menu-item" [class.ativo]="isPaginaAtiva('usuarios')">
         <img src="/assets/menu/usuarios.png" alt="" class="menu-icon" aria-hidden="true" />
         <span class="label">Usuários</span>

@@ -1,0 +1,183 @@
+<app-page-layout currentPage="vendas">
+  <div class="pdv-layout">
+
+    <!-- ========== COLUNA ESQUERDA ========== -->
+    <div class="pdv-left">
+
+      <!-- CLIENTE -->
+      <div class="pdv-card">
+        <h3 class="pdv-card-title">CLIENTE</h3>
+        <div class="cliente-row">
+          <label class="campo-label">Cliente:</label>
+          <select class="campo-input" [ngModel]="clienteSelecionadoId()" (ngModelChange)="clienteSelecionadoId.set($event)">
+            <option value="">Consumidor Final (Avulso)</option>
+            <option *ngFor="let c of clientes" [value]="c.id">{{ c.nome }}</option>
+          </select>
+        </div>
+        <div class="cliente-row-2">
+          <div class="campo">
+            <label class="campo-label">CPF/CNPJ</label>
+            <input class="campo-input campo-sm" type="text" [ngModel]="clienteCpfCnpj()" (ngModelChange)="clienteCpfCnpj.set($event)" />
+          </div>
+          <div class="campo campo-grow">
+            <label class="campo-label">Nome</label>
+            <input class="campo-input" type="text" [ngModel]="clienteNome()" (ngModelChange)="clienteNome.set($event)" />
+          </div>
+        </div>
+      </div>
+
+      <!-- PESQUISA DE PRODUTOS -->
+      <div class="pdv-card">
+        <h3 class="pdv-card-title">PESQUISA DE PRODUTOS</h3>
+        <div class="pesquisa-row">
+          <div class="pesquisa-wrapper">
+            <input
+              class="campo-input pesquisa-input"
+              type="text"
+              placeholder="Pesquisar Produto (Nome, Codigo)..."
+              [ngModel]="pesquisaProduto()"
+              (ngModelChange)="pesquisaProduto.set($event)"
+              (focus)="onPesquisaFocus()"
+              (blur)="onPesquisaBlur()"
+            />
+            <div class="dropdown-produtos" *ngIf="produtosFiltrados().length > 0">
+              <div
+                class="dropdown-item"
+                *ngFor="let pr of produtosFiltrados()"
+                (click)="selecionarProduto(pr)"
+              >
+                <span class="dp-nome">{{ pr.nome }}</span>
+                <span class="dp-preco">{{ pr.preco | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+              </div>
+            </div>
+          </div>
+          <input
+            class="campo-input campo-qtd"
+            type="number"
+            min="1"
+            step="1"
+            [ngModel]="quantidadeAdd()"
+            (ngModelChange)="quantidadeAdd.set($event)"
+          />
+          <button class="btn-adicionar" type="button" (click)="adicionarItem()">Adicionar</button>
+        </div>
+      </div>
+
+      <!-- LISTA DE ITENS (CARRINHO) -->
+      <div class="pdv-card pdv-card-grow">
+        <table class="itens-table">
+          <thead>
+            <tr>
+              <th class="col-qtd-lista">Qtd.</th>
+              <th>Descricao</th>
+              <th class="col-preco-lista">Preco Unit.</th>
+              <th class="col-total-lista">Total</th>
+              <th class="col-acao-lista"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="itensCarrinho().length === 0">
+              <td colspan="5" class="itens-vazio">Nenhum item adicionado</td>
+            </tr>
+            <tr *ngFor="let item of itensCarrinho(); let i = index">
+              <td class="col-qtd-lista">{{ item.quantidade }}</td>
+              <td>{{ item.nome }}</td>
+              <td class="col-preco-lista">{{ item.preco_unitario | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+              <td class="col-total-lista">{{ (item.quantidade * item.preco_unitario) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+              <td class="col-acao-lista">
+                <button class="btn-remover" type="button" (click)="removerItem(i)" title="Remover item">✕</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== COLUNA DIREITA ========== -->
+    <div class="pdv-right">
+      <div class="pdv-card resumo-card">
+        <h3 class="pdv-card-title">RESUMO DO PEDIDO &amp; PAGAMENTO</h3>
+
+        <div class="resumo-linha">
+          <span>Subtotal:</span>
+          <span>{{ subtotal() | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+        </div>
+        <div class="resumo-linha">
+          <span>Descontos:</span>
+          <span>R$ 0,00</span>
+        </div>
+
+        <div class="resumo-total">
+          <span>TOTAL A PAGAR:</span>
+          <span class="total-valor">{{ totalPagar() | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+        </div>
+
+        <h4 class="formas-titulo">FORMAS DE PAGAMENTO</h4>
+
+        <div
+          class="forma-opcao"
+          [class.forma-ativa]="formaPagamento() === 'dinheiro'"
+          (click)="selecionarFormaPagamento('dinheiro')"
+        >
+          <svg class="forma-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M2 10h2M20 10h2M2 14h2M20 14h2"/></svg>
+          Dinheiro
+        </div>
+        <div
+          class="forma-opcao"
+          [class.forma-ativa]="formaPagamento() === 'cartao'"
+          (click)="selecionarFormaPagamento('cartao')"
+        >
+          <svg class="forma-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/><path d="M6 14h4"/></svg>
+          Cartao de Credito
+        </div>
+        <div
+          class="forma-opcao"
+          [class.forma-ativa]="formaPagamento() === 'pix'"
+          (click)="selecionarFormaPagamento('pix')"
+        >
+          <svg class="forma-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13.17 17.83l3.54-3.54a2 2 0 000-2.83L13.17 7.93a2 2 0 00-2.83 0L6.8 11.46a2 2 0 000 2.83l3.54 3.54a2 2 0 002.83 0z"/><path d="M18.36 5.64l-1.9 1.9M5.64 18.36l1.9-1.9M18.36 18.36l-1.9-1.9M5.64 5.64l1.9 1.9"/></svg>
+          Pix
+        </div>
+        <div
+          class="forma-opcao"
+          [class.forma-ativa]="formaPagamento() === 'boleto'"
+          (click)="selecionarFormaPagamento('boleto')"
+        >
+          <svg class="forma-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h2v16H4zM8 4h1v16H8zM12 4h2v16h-2zM18 4h2v16h-2zM16 4h1v12h-1z"/></svg>
+          Boleto
+        </div>
+
+        <div class="resumo-botoes">
+          <button class="btn-confirmar" type="button" (click)="confirmarPagamento()" [disabled]="salvando()">
+            CONFIRMAR PAGAMENTO
+          </button>
+          <button class="btn-pedido" type="button" (click)="abrirModalPedido()" [disabled]="salvando()">
+            Adicionar Pedido
+          </button>
+          <div class="resumo-botoes-row">
+            <button class="btn-nova-venda" type="button" (click)="novaVenda()">Nova Venda</button>
+            <button class="btn-cancelar" type="button" (click)="cancelarVenda()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Data de Entrega -->
+  <div *ngIf="mostraModalPedido()" class="modal-overlay" (click)="fecharModalPedido()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <h2>Data de Entrega</h2>
+      <p>Informe a data prevista para entrega do pedido:</p>
+      <input
+        class="campo-input"
+        type="date"
+        [ngModel]="dataEntrega()"
+        (ngModelChange)="dataEntrega.set($event)"
+      />
+      <div class="modal-box-actions">
+        <button class="btn-confirmar" type="button" (click)="salvarPedido()" [disabled]="salvando()">Salvar Pedido</button>
+        <button class="btn-nova-venda" type="button" (click)="fecharModalPedido()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</app-page-layout>

@@ -8,7 +8,7 @@
       <p class="dashboard-error" role="alert">{{ errorMessage() }}</p>
     }
 
-    <app-summary-cards [loading]="loading()" [resumo]="resumo()" [graficos]="graficos()"></app-summary-cards>
+    <app-summary-cards [loading]="loading()" [resumo]="resumo()" [graficos]="graficos()" [ultimosVendidos]="ultimosVendidos()"></app-summary-cards>
     <app-dashboard-charts [loading]="loading()" [graficos]="graficos()"></app-dashboard-charts>
 
     <div class="dashboard-activities-estoque">

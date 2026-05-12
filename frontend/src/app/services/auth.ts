@@ -106,6 +106,7 @@ export class AuthService {
       2: 'OPERADOR_ESTOQUE',
       3: 'FINANCEIRO_CONTADOR',
       4: PERFIL_PADRAO,
+      5: 'VENDEDOR',
     };
     if (typeof funcao === 'number' && Number.isFinite(funcao)) {
       return numericMap[funcao] ?? PERFIL_PADRAO;
@@ -125,6 +126,7 @@ export class AuthService {
       APENAS_VISUALIZACAO: PERFIL_PADRAO,
       VISUALIZACAO: PERFIL_PADRAO,
       LEITOR: PERFIL_PADRAO,
+      VENDEDOR: 'VENDEDOR',
     };
     return aliasMap[perfil] ?? PERFIL_PADRAO;
   }
